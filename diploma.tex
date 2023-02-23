@@ -345,6 +345,9 @@ Na tem mestu zapišite, komu se zahvaljujete za pomoč pri izdelavi diplomske na
     {\bf VOT}     & Visual object tracking       & Vizualno sledenje             \\
     {\bf VPU}     & Visual processing unit       & Vizualna procesna enota       \\
     {\bf ROI}     & Region of interest           & Območje interesa              \\
+    {\bf USB}     & Universal serial bus         & Univerzalno serijsko vodilo   \\
+    {\bf PoE}     & Power over ethernet          & Napajanje preko etherneta     \\
+
     %  \dots & \dots & \dots \\
 \end{tabular}
 
@@ -364,7 +367,7 @@ Na tem mestu zapišite, komu se zahvaljujete za pomoč pri izdelavi diplomske na
 \bigskip
 
 %\noindent\textbf{Povzetek:} 
-\noindent V okviru diplomskega dela je bilo implementirano in ovrednoteno delovanje vizualnega sledilnika na vgrajeni napravi Luxonis OAK-1. Izbran je bil sledilnik STARK, spada v družino sledilnikov, ki jih sestavljajo globoke nevronske mreže. Bolj specifično sledilnik uporablja arhitekturo transformer, ki je trenutno uporabljena v vseh najboljših vizualnih sledilnikih. Sledilnik je bilo potrebno rahlo predelati ter ga pretvoriti v OpenVINO format, ki omogoča uporabno na vgrajeni napravi. Poleg tega je bilo potrebno zasnovati cevovod, po katerem se podatki na napravi pretakajo. Z vsem naštetim smo dosegli, da lahko vgrajena naprava izvaja vse potrebne funkcije popolnoma avtonomno, vse kar potrebuje od gostiteljskega sistema (npr. osebni računalnik) je začetni omejitveni okvir tarče \emph{(ang. bounding box)}, gostiteljskemu sistemu pa vrača vse naslednje omejitvene okvirje tarče. S tem smo dosegli to, da so performance sledenja neodvisne od gostiteljskega sistema.
+\noindent V okviru diplomskega dela je bilo implementirano in ovrednoteno delovanje vizualnega sledilnika na vgrajeni napravi Luxonis OAK-1. Izbran je bil sledilnik STARK, spada v družino sledilnikov, ki jih sestavljajo globoke nevronske mreže. Bolj specifično sledilnik uporablja arhitekturo transformer, ki je trenutno uporabljena v vseh najboljših vizualnih sledilnikih. Sledilnik je bilo potrebno rahlo predelati ter ga prevesti v OpenVINO format, ki omogoča uporabno na vgrajeni napravi. Poleg tega je bilo potrebno zasnovati cevovod, po katerem se podatki na napravi pretakajo. Z vsem naštetim smo dosegli, da lahko vgrajena naprava izvaja vse potrebne funkcije popolnoma avtonomno, vse kar potrebuje od gostiteljskega sistema (npr. osebni računalnik) je začetni omejitveni okvir tarče \emph{(ang. bounding box)}, gostiteljskemu sistemu pa vrača vse naslednje omejitvene okvirje tarče. S tem smo dosegli to, da so performance sledenja neodvisne od gostiteljskega sistema.
 \bigskip
 
 \noindent\textbf{Ključne besede:} \tkeywords.
@@ -399,29 +402,29 @@ A proper abstract should contain around 100 words which makes this one way too s
 \pagestyle{fancy}
 
 \chapter{Uvod}
-Računalniški vid je področje, ki se v zadnjih letih zelo hitro razvija. Z napredkov v razvoju avtonomnih sistemov, kot so avtonomni avtomobili, droni, roboti in še mnogi drugi, in vse večjem številu IoT naprav opremljenih s kamero, se vedno bolj pojavlja želja po uporabi modernih pristopov na majhnih, manj zmogljivih napravah. Računalniškega vida zavzema kar nekaj področji, v tem delu smo se osredotočili na vizualno sledenje, natančneje sledenju posameznega objekta \emph{(ang. single object tracking)}.
+Računalniški vid je področje, ki se v zadnjih letih zelo hitro razvija. Z napredkov v razvoju avtonomnih sistemov, kot so avtonomni avtomobili, droni, roboti in še mnogi drugi, in vse večjem številu IoT naprav opremljenih s kamero, se vedno bolj pojavlja želja po uporabi modernih pristopov na majhnih, manj zmogljivih napravah. Področje računalniškega vida zavzema kar nekaj sklopov, v tem delu smo se osredotočili na vizualno sledenje, natančneje sledenju posameznega objekta \emph{(ang. single object tracking, VOT)}.
 
-Vizualno sledenje je področje, ki se ukvarja z iskanjem in sledenjem objektov v videu. V tem delu smo se osredotočili na SOT, kjer je cilj slediti samo enemu objektu. Sledilniku je naprej potrebno podati BBOX tarče, kateri želimo slediti, nato pa sledilnik na podlagi prostorske, pri najbolj modernih pa celo časovno-prostorske informacije sledi želeni tarči in nam za vsako sličico vrne pripadajoč BBOX. V preteklosti so bil najbolj popularni tako imenovani klasični algoritmi (npr. KCF, MOSSE, ...), sedaj pa prevladujejo sledilniki temeljijo na nevronskih mrežah
+Vizualno sledenje je področje, ki se ukvarja z iskanjem in sledenjem objektov v videu. V tem delu smo se osredotočili na SOT, kjer je cilj slediti samo enemu objektu. Sledilniku je naprej potrebno podati omejevalni okvir tarče \emph{(ang. bounding box, BBOX)}, kateri želimo slediti, nato pa sledilnik na podlagi prostorske, pri najbolj modernih pa celo časovno-prostorske informacije sledi želeni tarči in nam za vsako naslednjo sličico vrne pripadajoč BBOX. V preteklosti so bil najbolj popularni tako imenovani klasični algoritmi (npr. KCF \cite{kcf}, MOSSE \cite{mosse}, ...), sedaj pa prevladujejo sledilniki, ki temeljijo na nevronskih mrežah. V zadnjih nekaj letih je upravičeno vedno bolj popularna arhitektura transformer \cite{attention_is_all_you_need}, ki je bila primarno razvita in uporabljena za razumevanje in generacijo teksta \emph{(ang. natural language processing, NLP)}, v zadnjih letih pa je bila adaptirana na vizualne sledilnike, kjer dosega odlične rezultate.
 
-Da bi lahko zagotovili, dobre performance, pri manjši porabi energije, so se začele razvijati namenske procesorske enote VPU, ki so optimizirane za izvajanje nevronskih mrež. Še posebej popularna je arhitektura transformer, ki je bila primarno razvita in uporabljena za razumevanje in generacijo teksta, v zadnjih letih pa je bila adaptirana na vizualne sledilnike.
+Da bi lahko zagotovili, dobre performance, pri manjši porabi energije, so se začele razvijati namenske procesorske enote VPU \emph{(ang. visual processing unit)}, ki so optimizirane za izvajanje nevronskih mrež in pospešeno izvajanje operacij na slikovnimi tokovi. V to družino procesorskih enot spada tudi čip, Intel Movidius Myriad X, ki je v osrčju uporabljen naprave v tem diplomskem delu.
 
-V okviru te diplomske naloge smo se osredotočili na sledilnik STARK, ter vgrajeno napravo Luxonis OAK-1. Cilj naloge je bil sledilnik prilagoditi uporabi na tej napravi, ga prevesti v potreben format, ter ga umestiti v cevovod. V cevovodu je bilo potrebno tudi smiselno zasnovati, da v model pridejo pravilno oblikovani podatki.
+V okviru te diplomske naloge smo se osredotočili na sledilnik STARK \cite{stark}, ter vgrajeno napravo Luxonis OAK-1. Cilj naloge je bil sledilnik prilagoditi uporabi na tej napravi, ga prevesti v potreben format, ter ga umestiti v cevovod. Cevovod je bilo potrebno tudi smiselno zasnovati, da v model pridejo pravilno oblikovani podatki.
 
-Diplomsko delo je razdeljeno v N delov. V poglavju 2 bomo prestavili pregled področja. V poglavju 3 bomo opisali metodologijo, to zavzema hiter opis nevronskih mrež na splošno, arhitekture CNN in transformer, ter opis njune uporabe v vizualnih sledilnikih ter predstavitev izbranega sledilnika in vgrajene naprave. V poglavju 4 bomo opisali podrobnosti implementacije, kar vključuje opis prilagoditve model ter njegovo pretvorbo v pravilen format, opis implementacije cevovoda in opis 4 različnih načinov delovanja, ki smo jih pripravili. V poglavju 5 bomo prestavili rezultate evalvacije, osredotočili se bomo na primerjavo med sledilnikom, ki je bil pognan samostojno na vgrajeni napravi proti tistemu, ki je pognan na osebnem računalniku. Predstavili bomo tudi rezultate primerjave med dvema načinoma delovanja, robni \emph{ang. edge mode} proti gostiteljskemu \emph{ang. host mode} načinu delovanja. V poglavju 6 je zaključek, ki povzema ugotovitve, ter predstavi možne izboljšave za nadaljnji razvoj.
+Diplomsko delo je razdeljeno v 5 delov. V poglavju 2 bomo prestavili pregled področja. V poglavju 3 bomo opisali metodologijo, to zavzema hiter opis nevronskih mrež na splošno, arhitekture CNN in transformer ter predstavitev izbranega sledilnika. V poglavju 4 bomo opisali podrobnosti implementacije, kar vključuje opis uporabljene vgrajene naprave, prilagoditev modela ter njegovo pretvorbo v pravilen format, opis implementacije cevovoda in opis 4 različnih načinov delovanja, ki smo jih pripravili. V poglavju 5 bomo prestavili rezultate evalvacije, osredotočili se bomo na primerjavo med sledilnikom, ki je bil pognan samostojno na vgrajeni napravi proti tistemu, ki je pognan na osebnem računalniku. Predstavili bomo tudi rezultate primerjave med dvema načinoma delovanja, robni \emph{ang. edge mode} proti gostiteljskemu \emph{ang. host mode} načinu delovanja. V poglavju 6 je zaključek, ki povzema ugotovitve, ter predstavi možne izboljšave za nadaljnji razvoj.
 
 \chapter{Pregled področja}
-\label{ch0}
-V tem poglavju bomo pregledali dosedanje delo na področju vizualnega sledenja na splošno in na vgrajenih napravah. Na področju vizualnega sledenja je VOT test, eden najbolj uveljavljenih testov. V zadnjih letih prevladujejo sledilniki, ki uporabljajo arhitekturo transformer, to lahko tudi razberemo, če analiziramo rezultate zadnjega testa VOT2022. Iz članka, v katerem so bili objavljeni rezultati, lahko razberemo da 9 od najboljših 10 sledilnikov uporablja arhitekturo transformer, opazimo lahko tudi, da je kar 47\% vseh testiranih sledilnikov uporabilo to arhitekturo.
+\label{ch:0}
+V tem poglavju bomo pregledali dosedanje delo na področju vizualnega sledenja na splošno in na vgrajenih napravah. Kot merilo uspešnosti sledilnika bom uporabili rezultate izziva VOT \emph{(ang. VOT challenge)} \cite{vot}, ki je eden najbolj uveljavljenih testov na področju vizualnega sledenja. VOT izziv vsako leto priredi evalvacijo novih sledilnikov. Sledilnike so v zadnji izvedbi, VOT2022 \cite{vot2022}, testirali na v sedmih različnih kategorijah. Glede na rezultate izziva v zadnjih nekaj letih, lahko opazimo porast v popularnosti in uspešnosti sledilnikov, ki uporabljajo arhitekturo transformer. Iz rezultatov VOT2022, objavljenih v \cite{vot2022}, lahko razberemo da 9 od najboljših 10 sledilnikov uporablja arhitekturo transformer, opazimo lahko tudi, da je kar 47\% vseh testiranih sledilnikov uporabilo to arhitekturo.
 
-Na področju vizualnega sledenja na vgrajenih napravah, je bilo objavljenih že nekaj del, a nobeno od njih ni uporabilo sledilnika na osnovi arhitekture transformer. V članku \emph{Evaluation of Visual Tracking Algorithms for Embedded Devices}\cite{evaluation_of_visual_tracking_algorithms_for_embedded_devices} so primerjali performance med 5 klasičnimi algoritmi, teste so izvedli na napravi Raspberry Pi 3 B v1.2 in ugotovili, da z uporabo sledilnika KCF dobijo najboljše razmerje med hitrostjo in natančnost. V članku \emph{Real-Time Multiple Object Visual Tracking for Embedded GPU Systems}\cite{real_time_multiple_object_visual_tracking_for_embedded_gpu_systems}, so predstavili MOT \emph{(ang. multiple object tracking)} na napravi Nvidia Jetson TX2, kjer so uporabili več stopenjsko arhitekturo, detektor (YOLOv3) in sledilnik (KCF) in dobili dobre rezultate.
+Na področju vizualnega sledenja na vgrajenih napravah, je bilo objavljenih že nekaj del, a nobeno od njih ni uporabilo sledilnika na osnovi arhitekture transformer. V članku \emph{Evaluation of Visual Tracking Algorithms for Embedded Devices}\cite{evaluation_of_visual_tracking_algorithms_for_embedded_devices} so primerjali performance med 5 klasičnimi algoritmi, teste so izvedli na napravi Raspberry Pi 3 B v1.2 in ugotovili, da z uporabo sledilnika KCF dobijo najboljše razmerje med hitrostjo in natančnostjo. V članku \emph{Real-Time Multiple Object Visual Tracking for Embedded GPU Systems}\cite{real_time_multiple_object_visual_tracking_for_embedded_gpu_systems}, so predstavili MOT \emph{(ang. multiple object tracking)} na napravi Nvidia Jetson TX2, kjer so uporabili več stopenjsko arhitekturo, detektor (YOLOv3 \cite{yolov3}) in sledilnik (KCF \cite{kcf}), in dobili dobre rezultate.
 
 
 \chapter{Metodologija}
-\label{ch1}
-Ker je bil cilj dela, preizkusiti možnost uporabe enega izmed najsodobnejših vizualnih sledilnikov na vgrajeni napravi, ki temelji na nevronskih mrežah, bom v tem poglavju predstavili delovanje nevronskih mrež, arhitekture CNN in transformer, ter opisali izbrani sledilnik in vgrajeno napravo.
+\label{ch:1}
+Ker je bil cilj dela, preizkusiti možnost uporabe enega izmed najsodobnejših vizualnih sledilnikov na vgrajeni napravi, ki temelji na nevronskih mrežah, bomo v tem poglavju predstavili delovanje nevronskih mrež, arhitekture CNN in transformer in opisali izbrani sledilnik.
 
 \section{Umetne nevronske mreže}
-Umetne nevronske mreže \emph{(ang. Artificial Neural Network, ANN)} so vrsta modelov strojnega učenja, ki posnemajo delovanje bioloških nevronskih mrež \emph{(ang. Biological Neural Network, BNN)}. Sestavljene so iz množice umetnih nevronov, ki so med seboj povezani z uteženimi povezavami in združeni v sloje. Sloje delimo na tri vrste - vhodni sloj \emph{(ang. input layer)}, skrite sloje \emph{(ang. hidden layers)} in izhodni sloj \emph{(ang. output layer)}. Mreže z več kot enim skritim slojem imenujemo globoke nevronske mreže \emph{(ang. Deep Neural Network, DNN)}.
+Umetne nevronske mreže \emph{(ang. Artificial Neural Network, ANN)} so vrsta modelov strojnega učenja, ki posnemajo delovanje bioloških nevronskih mrež \emph{(ang. Biological Neural Network, BNN)}. Sestavljene so iz množice umetnih nevronov, ki so med seboj povezani z uteženimi povezavami in združeni v sloje. Sloje delimo na tri vrste - vhodni sloj \emph{(ang. input layer)}, skrite sloje \emph{(ang. hidden layers)} in izhodni sloj \emph{(ang. output layer)}. Mreže z več kot enim skritim slojem imenujemo globoke nevronske mreže \emph{(ang. Deep Neural Network, DNN)} ostale pa smatramo kot plitve nevronske mreže. Na sliki \ref{img:nn_vs_dnn} je prikazana primerjava zgradbe med plitvo nevronsko mrežo (levo) in globoko nevronsko mrežo (desno).
 
 \begin{figure}[htb]
     \begin{center}
@@ -431,10 +434,10 @@ Umetne nevronske mreže \emph{(ang. Artificial Neural Network, ANN)} so vrsta mo
     \label{img:nn_vs_dnn}
 \end{figure}
 
-Najpogosteje se za učenje nevronskih mrež uporablja algoritem vzvratnega razširjanja \emph{(ang. backpropagation)}. Algoritem se izvaja v več iteracijah, pri katerih se s pomočjo kriterijske funkcije izračuna napaka, ki je razlika med želenim izhodom in dejanskim izhodom. Napako uporabimo za izračun gradienta, ki nam pove, kako se spremeni vrednost uteži, da se napaka zmanjša. Kriterijsko funkcijo morem pravilno izbrati glede na vrsto problema, ki ga želimo rešiti. Za reševanje regresijskih problemov se najpogosteje uporablja srednjo kvadratno napako \emph{(ang. Mean Squared Error, MSE)}, za klasifikacijske probleme pa najpogosteje kategorično križno entropijo \emph{(ang. Categorical Cross-Entropy)} ali pa binarno križno entropijo \emph{(ang. Binary Cross-Entropy)}. Za iskanje optimalnih vrednosti uteži se uporabljajo različni optimizacijski algoritmi, ki na podlagi gradientnega spusta \emph{(ang. gradient descent)} iščejo minimum kriterijske funkcije. Med njimi sta najbolj znan stohastični gradientni spust \emph{(ang. Stochastic Gradient Descent, SGD)} in Adam \emph{(ang. Adaptive Moment Estimation)}.
+Najpogosteje se za učenje nevronskih mrež uporablja algoritem vzvratnega razširjanja \emph{(ang. backpropagation)}. Algoritem se izvaja v več iteracijah, pri katerih se s pomočjo kriterijske funkcije izračuna napaka, ki je razlika med želenim izhodom in dejanskim izhodom. Napako uporabimo za izračun gradienta, ki nam pove, kako moramo spremeniti vrednost uteži, da se napaka zmanjša. Kriterijsko funkcijo morem pravilno izbrati glede na vrsto problema, ki ga želimo rešiti. Za reševanje regresijskih problemov se najpogosteje uporablja srednjo kvadratno napako \emph{(ang. Mean Squared Error, MSE)}, za klasifikacijske probleme pa najpogosteje kategorično križno entropijo \emph{(ang. Categorical Cross-Entropy)} ali pa binarno križno entropijo \emph{(ang. Binary Cross-Entropy)}. Za iskanje optimalnih vrednosti uteži se uporabljajo različni optimizacijski algoritmi, ki na podlagi gradientnega spusta \emph{(ang. gradient descent)} iščejo minimum kriterijske funkcije. Med njimi sta najbolj znan stohastični gradientni spust \emph{(ang. Stochastic Gradient Descent, SGD)} in Adam \emph{(ang. Adaptive Moment Estimation)}.
 
 \section{Konvolucijske nevronske mreže}
-Konvolucijske nevronske mreže \emph{(ang. Convolutional Neural Network)}, so vrsta umetnih nevronski mrež, ki se pogosto uporablja v nalogah računalniškega vida, kot so prepoznavanje objektov, klasifikacija slik, detekcija obrazov in drugo. CNN modeli so tipično sestavljeni iz več ponovitev konvolucijskih slojev \emph{ang. pooling layers} in združevalnih slojev \emph{ang. pooling layers}. Za zadnjim združevalnim slojem najpogosteje sledi nekaj polno-povezanih slojev. Poenostavljena arhitektura konvolucijske nevronske mreže je prikazana na sliki \ref{img:cnn}.
+Konvolucijske nevronske mreže \emph{(ang. Convolutional Neural Network)}, so vrsta umetnih nevronski mrež, ki se pogosto uporablja v nalogah računalniškega vida, kot so prepoznavanje objektov, klasifikacija slik, detekcija obrazov in drugo. CNN modeli so tipično sestavljeni iz več ponovitev konvolucijskih slojev \emph{(ang. convolutional layers)} in združevalnih slojev \emph{(ang. pooling layers)}. Za zadnjim združevalnim slojem najpogosteje sledi nekaj polno-povezanih slojev. Poenostavljena arhitektura konvolucijske nevronske mreže je prikazana na sliki \ref{img:cnn}.
 
 
 \begin{figure}[htb]
@@ -453,17 +456,17 @@ Konvolucijski sloji delujejo na principu matematične operacije konvolucije, ki 
     \label{eq:1}
 \end{equation}
 
-Kjer je \emph{f} predstavlja vhodno funkcijo, \emph{g} pa jedro konvolucije. Ker se pri obdelavi digitalnih podatkov pogosto uporablja diskretna konvolucija, je enačba \ref{eq:1} spremenjena v:
+Kjer je \emph{f} predstavlja vhodno funkcijo, \emph{g} pa jedro konvolucije. Ker se pri obdelavi digitalnih podatkov pogosto uporablja diskretna konvolucija, z enačbo \ref{eq:1} spremenjena v:
 \begin{equation}
     (f*g)[t]=\sum_{k=-\inf}^{\inf}f[k]g[n - k]
     \label{eq:2}
 \end{equation}
 
 \section{Arhitektura transformer}
-Transformer je arhitektura nevronske mreže, ki temelji na mehanizmu pozornosti, ki je bil predstavljen leta 2017 v članku \emph{Attention is all you need} \cite{attention_is_all_you_need}. Primarno je bila arhitektur razvita za naloge procesiranja naravnega jezika \emph{Natural language processing, NLP}, sejda pa postaja popularna tudi v drugih domenah strojnega učenja, med drugim tudi v računalniškem vidu. Osnovna arhitektura, kji je bila predstavljena v \cite{attention_is_all_you_need}, vključuje kodirni \emph{(ang. encoder)} in dekodirni modul \emph{(ang. decoder)}. Kodirnik je sestavljen iz dveh podslojev, dekodirnik pa iz treh.
+Transformer je arhitektura nevronske mreže, ki temelji na mehanizmu pozornosti, ki je bil predstavljen leta 2017 v članku \emph{Attention is all you need} \cite{attention_is_all_you_need}. Primarno je bila arhitektur razvita za naloge procesiranja naravnega jezika \emph{(Natural language processing, NLP)}, sejda pa postaja popularna tudi v drugih domenah strojnega učenja, med drugim tudi v računalniškem vidu. Osnovna arhitektura, kji je bila predstavljena v \cite{attention_is_all_you_need}, vključuje kodirni \emph{(ang. encoder)} in dekodirni modul \emph{(ang. decoder)}. Kodirnik je sestavljen iz dveh podslojev, dekodirnik pa iz treh.
 
 \subsection{Mehanizem pozornosti}
-Mehanizem pozornosti deluje na podlagi ključev \emph{(ang. key, K)}, poizvedb \emph{(ang. query, Q)} in vrednosti \emph{(ang. value, V)}. Mehanizem iz matrike ključev in matrike poizvedb izračuna matriko pozornosti. Z matričnim množenjem matrike pozornosti in matrike vrednosti dobimo linearno kombinacijo vrednosti, ki predstavljajo izhod. Razlikujemo med samopozornostjo in medpozornostjo. O samopozornosti govorim, ko če vse tri vhodne parametre dobimo iz iste množice podatkov, pri medpozornosti pa poizvedbe pridobimo iz ene množice podatkov, ključe pa iz druge.
+Mehanizem pozornosti deluje na podlagi ključev \emph{(ang. key, K)}, poizvedb \emph{(ang. query, Q)} in vrednosti \emph{(ang. value, V)}. Mehanizem iz matrike ključev in matrike poizvedb izračuna matriko pozornosti. Z matričnim množenjem matrike pozornosti in matrike vrednosti dobimo linearno kombinacijo vrednosti, ki predstavljajo izhod. Razlikujemo med samo-pozornostjo in med-pozornostjo. O samo-pozornosti govorim, ko vse tri vhodne parametre dobimo iz iste množice podatkov, pri med-pozornosti pa poizvedbe pridobimo iz ene množice podatkov, ključe in vrednosti pa iz druge.
 
 Vhodne vektorje $ x_i, x_{i+1},..., x_{n} $ združimo v matriko $ X_{n \times d_m} $, kjer $ d_m $ predstavlja dimenzionalnost modela. Naučene parametre pa predstavljajo matrike $ W^Q_{d_m \times d_m} $, $ W^K_{d_m \times d_m} $ in $ W^V_{n \times d_m} $. Iz navedenih matrik lahko izračunamo
 
@@ -487,12 +490,14 @@ kjer funkcija \emph{softmax} spremeni vektor \emph{n} realnih števil v vektor v
 Iz \ref{eq:3} in \ref{eq:4} lahko izračunamo končno izhodno vrednost mehanizma
 
 \begin{equation}
-    S = AV
+    S = AV,
     \label{eq:5}
 \end{equation}
 
+na sliki \ref{img:attention} je potek izračuna prikazan v obliki diagrama.
 
-Ko se mehanizem pozornosti uporabi v dekodirnem modulu je potrebno določen del podatkov skriti. Bolj natačno, modelu je treba preprečiti, da bi lahko prejel podatke, kateri še niso bili napovedani. Skrivanje podatkov nam omogoča maska, ki določene vrednosti v matriki pozornosti \emph{A} nastavi na $ -\infty $.
+
+Ko se mehanizem pozornosti uporabi v dekodirnem modulu je potrebno določen del podatkov skriti. Bolj natančno, modelu je treba preprečiti, z podatki, ki jih še ni napovedal.
 
 
 \begin{figure}[htb]
@@ -504,20 +509,20 @@ Ko se mehanizem pozornosti uporabi v dekodirnem modulu je potrebno določen del 
 \end{figure}
 
 
-\subsection{Večglava pozornost}
-Da bi model lahko zajel več lastnosti vhodnih podatkov je potrebno mehanizem pozornosti nadgraditi. Večglava pozornost vzporedno izračuna več ločenih pozornosti (glav) in jih združi v končni rezultat. Vsaka glava se osredotoči na eno lastnost podatkov. Vsaka glava $ i $ ima svoje matrike naučenih uteži, končni rezultat pa se pridobi s strnitvijo posameznih matrik pozornosti.
+\subsection{Več-glava pozornost}
+Da bi model lahko zajel več lastnosti vhodnih podatkov je potrebno mehanizem pozornosti nadgraditi. Več-glava pozornost vzporedno izračuna več ločenih pozornosti (glav) in jih združi v končni rezultat. Vsaka glava se osredotoči na eno lastnost podatkov. Vsaka glava $ i $ ima svoje matrike naučenih uteži, končni rezultat pa se pridobi s strnitvijo posameznih matrik pozornosti. Na sliki \ref{img:mha} je prikazan diagram poteka več-glave pozornosti.
 
 \begin{figure}[htb]
     \begin{center}
         \includegraphics[width=0.3\textwidth]{img/mha.png}
     \end{center}
-    \caption{Diagram izračuna večglave pozornosti \cite{attention_is_all_you_need}.}
+    \caption{Diagram izračuna več-glave pozornosti \cite{attention_is_all_you_need}.}
     \label{img:mha}
 \end{figure}
 
 
 \subsection{Vhodna vdelava in pozicijsko kodiranje}
-Preden vhodni podatki prispejo do kodirnega bloka jih je potrebno najprej pravilno predelati. Za ta namen se uporablja vdelava vhodnega niza v $ d_m $ dimenzionalni latentni prostor \emph{(ang. embedding space)}. Vhodna vdelava \emph{(ang. input embedding)} vhodne besede pretvori v vektorje, s tem model pridobi informacijo o pomenu posamezne besede. Pozicijsko kodiranje \emph{(ang. positional encoding)} pa modelu pridobi informacijo o vrstnem redu besed v nizu. Da bi se izognili velikim vrednostim v pozicijskem kodiranju, se za kodiranje uporabljata sledeči funkciji
+Preden vhodni podatki prispejo do kodirnega bloka jih je potrebno najprej pravilno predelati. Za ta namen se uporablja vdelava vhodnega niza v $ d_m $ dimenzionalni latentni prostor \emph{(ang. embedding space)}. Vhodna vdelava \emph{(ang. input embedding)} vhodne besede pretvori v vektorje, s tem model pridobi informacijo o pomenu posamezne besede. Pozicijsko kodiranje \emph{(ang. positional encoding)} pa modelu poda informacijo o vrstnem redu besed v nizu. Da bi se izognili velikim vrednostim v pozicijskem kodiranju, se za kodiranje uporabljata sledeči funkciji \ref{eq:7}
 
 \begin{equation}
     \begin{split}
@@ -527,13 +532,13 @@ Preden vhodni podatki prispejo do kodirnega bloka jih je potrebno najprej pravil
     \label{eq:7}
 \end{equation}
 
-v enačbi \ref{eq:5} predstavlja $ pos $ pozicijo besede v nizu, $ i $ pa dimenzijo kodiranja, kar pomeni da ima vsaka dimenzija pozicijskega kodiranja pripadajočo sinusoidno vrednost.
+v enačbi \ref{eq:7} predstavlja $ pos $ pozicijo besede v nizu, $ i $ pa dimenzijo kodiranja, kar pomeni da ima vsaka dimenzija pozicijskega kodiranja pripadajočo sinusoidno vrednost.
 
 
 Informacijo o pomenu in poziciji posamezne besede združimo tako, da matriki seštejemo.
 
 \subsection{Kodirni modul}
-Kodirni modul je sestavljen iz $ N $ identičnih slojev, ki so sestavljeni iz dveh pod-slojev. Prvi pod sloj je več glava pozornost \emph{(ang. multi-headed attention)} in polno povezane nevronske mreže \emph{(ang. Feedforward neural network, FFN)}.
+Kodirni modul ali kodirnik je sestavljen iz $ N $ identičnih slojev, ki so sestavljeni iz dveh pod-slojev. Prvi pod sloj je več glava pozornost \emph{(ang. multi-headed attention)} in polno povezane usmerjene nevronske mreže \emph{(ang. Feedforward neural network, FFN)}.
 
 \begin{figure}[htb]
     \begin{center}
@@ -545,7 +550,7 @@ Kodirni modul je sestavljen iz $ N $ identičnih slojev, ki so sestavljeni iz dv
 
 
 \subsection{Dekodirni modul}
-Dekodirni je sestavljen iz $ N $ identičnih slojev, ki so sestavljeni iz treh pod-slojev. Prvi pod sloj je več glava pozornost z možnostjo maskiranja vhodnih podatkov. Drugi pod sloj je več glava pozornost, tretji sloj pa predstavlja polno povezana nevronska mreža.
+Dekodirni modul ali dekodirnik je sestavljen iz $ N $ identičnih slojev, ki so sestavljeni iz treh pod-slojev. Prvi pod sloj je več glava pozornost z možnostjo maskiranja vhodnih podatkov. Drugi pod sloj je več glava pozornost, tretji sloj pa predstavlja polno povezana nevronska mreža.
 
 
 \begin{figure}[htb]
@@ -558,18 +563,138 @@ Dekodirni je sestavljen iz $ N $ identičnih slojev, ki so sestavljeni iz treh p
 
 \section{Model STARK}
 \label{sec:stark}
-Model STARK \cite{stark} spada v družino SOT \emph{(ang. single object tracking)} sledilnikov. Primarno je sestavljen iz dveh arhitektur, konvolucijskih nevronskih mrež in arhitekture transformer, ki je bila prilagojena za vizualne sledilnike. Navdih za njegov nastanek je bil predhodni model za detekcijo DETER \cite{deter}. Ena od novosti, ki so jo uvedli v tem modelu je uporaba časovne in prostorske komponente. Prostorska komponenta vsebuje informacijo o izgledu objekta, kateremu sledi. Časovna komponenta pa nosi informacijo o spremembi pozicije objekta skozi čas.
-Arhitektura, ki so jo predlagali vsebuje tri ključne elemente: kodirni modul, dekodirni modul in napovedovalno glavo \emph{(ang. predictio head)}. Kodirni modul kot vhod prejme trenutno sliko, ter matrica \emph{(ang. template)}, ki se skozi čas dinamično posodablja. \underbar{Moduli za samopozornost v kodirniku se povezave med vhodi in preko korelacije značilk}. Ker se dinamična matrica, skozi čas, posodablja, lahko kodirnik zajame tudi prostorsko in časovno informacijo o objektu, ki mu sledimo.
+Model STARK \cite{stark} spada v družino SOT \emph{(ang. single object tracking)} sledilnikov. Primarno je sestavljen iz dveh arhitektur, konvolucijskih nevronskih mrež in arhitekture transformer, ki je bila prilagojena za vizualne sledilnike. Navdih za njegov nastanek je bil predhodni model za detekcijo DETER \cite{deter}. Ena od novosti, ki so jo uvedli v tem modelu je uporaba časovne in prostorske komponente \emph{STARK\_ST}. Prostorska komponenta vsebuje informacijo o izgledu objekta, kateremu sledi. Časovna komponenta pa nosi informacijo o spremembi pozicije objekta skozi čas.
+Arhitektura, ki so jo predlagali vsebuje tri ključne elemente: kodirni modul, dekodirni modul in napovedovalno glavo \emph{(ang. predictio head)}. Model kot vhod prejme trenutno sliko, začetno matrico \emph{(ang. template)} in dinamično matrico, ki se skozi čas dinamično posodablja. Z uporabo dinamična matrice, ki se skozi čas posodablja, lahko model zajame prostorsko in časovno informacijo o objektu, ki mu sledimo.
 
-Prednost tega sledilnika je v tem, da ne potrebuje kompleksnega pre in postprocesiranje. Ob inicializaciji prejem kot vhod sliko in omejitveni okvir tarče. Na podlagi teh dveh vhodnih podatkov se najprej izreže ROI, ki se uporabi za izračun matrice. Ob vsaki naslednji sličici, pa so vhodni podatki slika, začetna matrica in dinamična matrica, sledilnik pa vrne izračunani omejitveni okvir.
+Prednost tega sledilnika je v tem, da ne potrebuje kompleksne predobdelave \emph{(ang. preprocessing)} vhodnih podatkov in naknadne obdelave \emph{(ang. postprocessing)} izhoda. Ob inicializaciji prejem kot vhod sliko in omejitveni okvir tarče. Na podlagi teh dveh vhodnih podatkov se najprej iz celotne vhodne slike izreže iskalno območje \emph{(ang. search area)}, ki se uporabi za izračun matrice. Ob vsaki naslednji sličici, pa so vhodni podatki iskalno območje izrezano iz vhodne slike, začetna matrica in dinamična matrica, sledilnik pa vrne izračunani omejitveni okvir.
 
 \subsection{Arhitektura modela stark}
-Arhitekturo modela lahko razdelimo na tri glavne dele: \emph{(1)} konvolucijska hrbtenica \emph{(ang. convolutional backbone)}, \emph{(2)} kodirni-dekodirni transformer in predikcijsko glavo za omejitveni okvir \emph{(ang. bounding box prediction head)}. V nadaljevanju bomo predstavili vsak od teh delov.
+V tem delu smo zaradi manjše procesorske in prostorske zahtevnosti uporabili, različico modela STARK, ki uporablja samo prostorsko komponento \emph{STARK\_S}. V nadaljevanju bomo predstavili delovanje in arhitekturo modela.
+
+Arhitekturo modela lahko razdelimo na tri glavne dele: \emph{(1)} konvolucijska hrbtenica \emph{(ang. convolutional backbone)}, \emph{(2)} kodirni-dekodirni transformer in predikcijsko glavo za omejitveni okvir \emph{(ang. bounding box prediction head)}. V nadaljevanju bomo predstavili vsakega od teh delov.
+
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{img/stark.png}
+    \end{center}
+    \caption{Diagram arhitekture modela STARK\_S \cite{attention_is_all_you_need}.}
+    \label{img:stark}
+\end{figure}
 
 \subsubsection{Konvolucijska hrbtenica}
-Konvolucijsko hrbtenico sestavlja model ResNet \cite{resnet}, kateremu so odstranili zadnjo sekcijo in polno povezane sloje. Kot vhod prejme hrbtenica začetno matrico $ z \in \mathbb{R}^{3 \times H_z \times W_z} $ in iskalno regijo (iz slike izrezan ROI) $ x \in \mathbb{R}^{3 \times H_x \times W_x} $. Po prehodu čez hrbtenico dobimo dve matrici značilk
+Konvolucijsko hrbtenico sestavlja model ResNet \cite{resnet}, kateremu so odstranili zadnjo sekcijo in polno povezane sloje. Kot vhod prejme hrbtenica začetno matrico $ z \in \mathbb{R}^{3 \times H_z \times W_z} $ in iskalno območje $ x \in \mathbb{R}^{3 \times H_x \times W_x} $. Po prehodu čez hrbtenico dobimo dve matrici značilk
 $ f_z \in \mathbb{R}^{C \times \frac{H_z}{s} \times \frac{W_z}{s}} $ in $ f_x \in \mathbb{R}^{C \times \frac{H_x}{s} \times \frac{W_x}{s}} $.
 
+\subsection{Kodirnik}
+Na matriki značilk, ki jo izračuna hrbtenica, je najprej potrebno izvesti predobdelavo. Predobdelava vključuje sloj z ozkim grlom \emph{(ang. bottleneck layer)}, ki matrikam zmanjša prostorsko dimenzionalnost iz $ C $ na $ d $. Nato je matriki potrebno sploščiti in združiti vzdolž prostorske dimenzije. Rezultat prejšnjih dveh operaciji proizvede sekvenco značilk dolžine $ \frac{H_z}{s}\frac{W_z}{s} + \frac{H_x}{s}\frac{W_x}{s} $ in dimenzionalnosti $ d $. Novo pridobljeni sekvenci značilk prištejemo vrednosti pozicijskega kodiranja vhoda. Ta sekvenco značilk je vhod za kodirni modul. Kodirni modul je sestavljen iz $ N $ identičnih slojev. Sloji so sestavljeni iz več-glave samo-pozornosti in FFN. Kodirni modul zajame odvisnosti med vsemi značilkami v vhodni sekvenci in s tem omogoča modelu, da se nauči o diskirminativnih značilkah, katere se uporabijo za lokalizacijo objekta.
+
+\subsection{Dekodirnik}
+Dekodirnik kot vhod prejem sekvenco značilk, ki jo je izračunal kodirnik, in eno poizvedbo. Podobno kot kodirnik je tudi dekodirnik sestavljen iz $ M $ identičnih slojev. Vsak sloj je sestavljen iz samo-pozornosti, med-pozornosti kodirnik-dekodirnik in FFN. V sloju med-pozornosti lahko ciljna poizvedba deluje nad vsemi pozicijam na vhodni matrici in iskalnem območju, kar omogoča učenje robustnih reprezentacij predikcij končnega omejevalnega okvirja.
+
+\subsection{Glava za predikcijo omejevalnega okvirja}
+Model uporablja novo zasnovani sistem za predikcijo omejevalnega okvirja, ki deluje na predikcij verjetnostne distribucije robov okvirja. Glava kot vhod prejme sekvenco značilk iskalnega obočja, ki jih je izračunal kodirni modul in izhodno vdelavo \emph{(ang. output embedding)}, ki jo je izračunal dekodirnik in med njimi izračuna podobnosti. Podobnosti pomnoži z sekvenco značilk iskalnega območja, s tem se poveča pomembnost pomembnih regij. Rezultat te operacije je nova sekvenca značilk, ki jo je potrebno preoblikovati v matriko $ f \in \mathbb{R}^{d \times \frac{H_s}{s} \times \frac{W_s}{s}} $. Novo pridobljena matrika je posredovana v polno povezano konvolucijsko mrežo \emph{(ang. fully connected convolutional network)}, ki iz matrike značilk izračuna dve verjetnostni matriki, $ P_{tl}(x,y) $ in  $ P_{br}(x,y) $, ki predstavljata levi zgornji in desni spodnji kot omejevalnega okvirja. Končne koordinate omejevalnega okvirja $ (\hat{x_{tl}}, \hat{y_{tl}}) $ in $ (\hat{x_{br}}, \hat{y_{br}}) $. Na sliki \ref{img:bbox_head} je z diagramom predstavljen opisan potek predikcije omejevalnega okvirja, zadnji korak računanja kordinat iz verjetnostnih matrik pa je opisan v formuli \ref{eq:8}.
+
+\begin{equation}
+    \begin{split}
+        (\hat{x_{tl}}, \hat{y_{tl}}) = (\sum_{y=0}^{H} \sum_{x=0}^{W} x \cdot P_{tl}(x,y), (\sum_{y=0}^{H}) \sum_{x=0}^{W} y \cdot P_{tl}(x,y)), \\
+        (\hat{x_{br}}, \hat{y_{br}}) = (\sum_{y=0}^{H} \sum_{x=0}^{W} x \cdot P_{br}(x,y), (\sum_{y=0}^{H}) \sum_{x=0}^{W} y \cdot P_{br}(x,y)).
+    \end{split}
+    \label{eq:8}
+\end{equation}
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{img/bbox_head.png}
+    \end{center}
+    \caption{Diagram poteka izračuna omejitvenega okvirja \cite{attention_is_all_you_need}.}
+    \label{img:bbox_head}
+\end{figure}
+
+\chapter{Implementacija
+  \label{ch:2}}
+V tem poglavju bomo najprej predstavili vgrajeno napravo Luxonis OAK-1, ogrodji OpenVINO in DepthAI, na kratko predstavili vsa ostala uporabljena orodja in tehnologije ter na koncu podrobno opisali postopek implementacije.
+
+\section{Luxonis OAK-1}
+Luxonis je Ameriško podjetje, ki se ukvarja z razvojem naprav za uporabo na področju prostorske umetne inteligence \emph{(ang. spatial AI)} in računalniškega vida. Od ostalih jih razlikuje odptokodnost vseh njihovih naprav in ogrodja \emph{(ang. framework)} DepthAI. Ponujajo več različnih različic naprav, vse pa je skupno to, da imajo integriran čip Intel Movidus MyriadX, ki ponuja relativno visoke performance, pri tem pa zavzame malo prostora in porabi malo energije. Njihove izdelke lahko razdelimo na grobo razdelimo glede na 2 karakteristiki. Glede na zmožnost zajemanja slike (mono ali stereo) in glede na način napajanja in komunikacije (USB ali Ethernet in PoE). V tem delu smo uporabili napravo OAK-1, ki omogoča zajem mono slike, napaja in komunicira pa preko USB.
+
+\begin{figure}[ht]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{img/oak-1.png}
+    \end{center}
+    \caption{Slika prikazuje uporabljeno napravo Luxonis OAK-1 \cite{luxonis}.}
+    \label{img:oak}
+\end{figure}
+
+V osrčju naprave je modul RVC2 \emph{(Robotic Vision Core 2)}. Modul ponuja 4 TOPS procesorske poči, od katerih he je 1.4 TOPS rezerviranih za izvajanje nevronskih mrež. Podpira pa tudi hardversko kodiranje slikovnih tokov (H.264, H.265, MJPEG), pospešeno izvajanje pogostih operacij v računalniškem vidu (skaliranje, rezanje, zaznavanje robov, itd.). V osrčju modula je Intelov sistem na čipu \emph{(ang. system on chip, SoC)} Movidus Myriad X vključuje Intelov NCE \emph{(Neural compute engine)}, 16 vektorskih procesorskih enot SHAVE, 20 hardverskih pospeševalnih enot poimenovanih \emph{Enhanced Vision Accelerators}, ter 2.5 MB vgrajenega hitrega homogenega spomina.
+
+\section{DepthAI}
+DepthAI je hkrati programsko ogrodje \emph{(ang. framework)} in tudi ekosistem odprtokodne programske in hardverske opreme, ki ga razvija podjetje Luxonis. Ogrodje je na voljo v dveh izvedbah, ogrodje za programski jezik Python in izvedba za programski jezik C++. Ogrodje nam olajša uporabo naprav, saj ponuja programski vmesnik \emph{(ang. Application Programming Interface, API)}, s katerim lahko odstopamo do resursov naprave. Princip delovanja stoji na cevovodni arhitekturi. Cevovod je sestavljen iz med-seboj povezanih vozlišč, ki se izvajajo na napravi. V ogrodju imamo na razpolago več različnih tipov vozlišč, spodaj je navedenih nekaj najbolj uporabljenih:
+\begin{itemize}
+    \item vozlišče za manipuliranje slike \emph{ImageManip}, ki nam omogoča enostavno manipulacijo s slike (skaliranje, izrezovanje, pretvorba formatov, itd.),
+    \item vozlišče za konfiguriranje in interakcijo z kamero \emph{ColorCamera},
+    \item vozlišče za pretok podatkov preko USB povezave v semri iz naprave na gostiteljski sistem \emph{XLinkOut},
+    \item vozlišče za pretok podatkov preko USB povezave v semri iz gostiteljskega sistema v napravo \emph{XLinkIn},
+    \item vozlišče za izvajanje pomeri narejenih skript na naparvi \emph{Script}. Skripte morajo biti napisane v programskem jeziku Python,
+    \item vozlišče za uporabo pomeri narejenih nevronskih mrež na napravi \emph{NeuralNetwork}. Nevronske mreže morajo bit prevedene v pravilen format,
+\end{itemize}
+
+\section{OpenVINO}
+OpenVINO je komplet odprtokodnih orodji, ki nam omogočajo optimizacijo in prevajanje modelov v format, ki je primeren za delovanje na najrazličnejših napravah, med drugimi tudi VPU Intel Movidus MyriadX. Vsak model je potrebno najprej pravilno prilagoditi, da ustreza zahtevam in omejitvam ciljnega sistema.
+
+Pri prilaghajanju moremo biti pozorni na tipe slohjev ki so uporabljeni v modelu, saj vsi sloji niso podprti na vseh napravah. Upoštevati je tudi treba, model ne more več pomniti dinamičnega stanja, predstavljamo si lahko, da model ni več kos programske opreme, temveč samo zaporedje matematičnih operacij, ki prejme vhod in vrne izhod.
+
+Po prilagoditvi modela sledi korak optimizacije. Pri tem koraku se s pomočjo orodja \emph{Model optimizer}, izboljša računska in prostorska poraba modela. V tem koraku se podat tudi ciljni podatkovni tip uteži in ostalih fiksnih parametru model, imena izhodnih in vhodnih podatkov ter dimenzionalnost vhodnih podatkov. Pri podajanju dimenzionalnosti vhdonih podatkov moramo upoštevati, da nekatere ciljne naprave ne podpiranjo dinamičnih velikosti.
+
+Po optimizacijskem koraku sledi še zandji korak, prevajanje. Model je potrebno prevesti v pravilen format. Pri prevajanju moramo podati tip končne napave, podatkovni tip vhodnih podatkov in število vektorskih procesorjev SHAVE, ki jih bo model uporabil. Rezultat prevajanja je binarna datoteka v formatu \emph{.blob}.
+
+\section{Uporabljene tehnologije}
+Uporabljen je bil že naučen model STARK, bolj specifično STARK-Lightning. Gre za različico sledilnika, ki uporablja samo prostorsko informacijo, poleg tega pa se različica Lightning razlikuje še po tem, da porabi precej manj procesorske moči in prostora, seveda pa je posledica tega slabša natančnost. Model so \cite{stark} implementirali v ogrodju PyTorch, z uporabo programskega jezika Python, v katerem smo tudi mi nadaljevali z razvojem. Za lažji razvoj sta se uporabili dve konetejnerizirani okolji Docker. Eno okolje je bilo namenjeno razvoju modela v programskem jeziku Python, drugo okolje pa je bilo uporabljeno za namestitev in uporabo kompleta orodji OpenVINO. prednost uporabe kontejneriziranjih okolji je prenosljivost in reproduciranje rezultatov.
+
+\section{Prilagoditev modela}
+Model pri delovanju potrebuje vhdono iskalno območje, ki je izrezano iz vhdone slike. Iskalno območje je fiksne dimenzije, če gre za inicializacijski korak je to dimenzija $128*128$, pri vseh nadljnih korakih pa je dimenzija iskalnega območja $ 320*320 $. Izrezovanje iskalnega območja deluje tako, da iz vhdone slike izreže območje ki ga omejuje omejevalni okvir pomnožen z faktorjem iskanja, ki je v primeru inicializacije 2, v vseh naslednjih korakih pa 5. Pri tem je potrebno upoštevati, da je omejevalno območje pri robu slike, v tem primeru se sliki dodajo dodatni robovi \emph{(ang. padding)} z vrednostjo 0. Da dodani robovi ne bi uplivali na končni rezultat jih je potrebno maskirati, zato se pole iskalnega območja pripravi tudi maska. Maska ima vrednost 1, kjer je bil dodan rob, na ostalih mestih pa ima vrednost 0. V začetni implementaciji je bilo izdelovanje maske vmeščeno v predprocesiranje, ker pa si na vgrajeni napravi ne smemo privoščiti preveč obsežnega predprocesiranja smo se odločili da izdelovanje maske vključimo v sam model. Na začetek modela smo dodali dodaten modul, ki izračuna masko. Naj bo $ X_{1 \times 3 \times H \times W} $ vhodna iskalna regija, maks pa se izračuna po naslednjih korakih:
+
+\begin{enumerate}
+    \item izračunamo povprečje po 2. dimneziji matrike. Rezultat je matrika $ M_{1 \times 1 \times H \times W} $,
+    \item matriko preoblikujemo v $ M_{1 \times 1 \times H \times W} $,
+    \item da izločimo morebitne napake, ki bi jih lahko ta pristop povzročil (predpostavimo, da obstaja neničelna verjetnost, da bo kamera proizvedla vrednost piksla, katerag povreča vrednost bo 0), izvedemo še operacijo maksimalnega združevanja \emph{(ang. max pooling)} z velikostjo okna $ 3 \times 3 $.
+\end{enumerate}
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{img/example_mask.png}
+    \end{center}
+    \caption{Primer situacije kjer je izrezanemu iskalnemu območju dodan rob.}
+    \label{img:mask}
+\end{figure}
+
+Za enostavnejšo umestitev modela v cevovod, je model razdeljen na 2 dela. Prvi model, od sedaj naprej ga bomo poimenovali samo \textbf{backbone}, zajema samo hrbtenico, sloj ozkega grla in pozicijsko kodiranje. Ta model se uporabi ob inicializaciji. Drugi model, od sedaj naorej ga bomo poimenovali \textbf{complete}, pa ostaja nespremenjen in se uporablja pri vsakem nadaljnem koraku.
+
+\section{Prevajanje modela}
+Model je najprej potrebno iz ogrodja PyTorch izvoziti v format \emph{ONNX}. \emph{ONNX} je odprtokodni format za shranjevanje modelov, ki ga je ustvarila Microsoft. Za izvoz lahko uporabi funckionalnost, ki je vgrajena v PyTorch. Pri izvotu moramo podati, primer vhodnih podatkob, ter poimenovati - labelirati vhodne argumente. V tabeli \ref{tab:onnx} so podani uporabljeni argumenti.
+
+\begin{table}[htb]
+    \begin{tabular}{p{0.1\textwidth}|p{.4\textwidth}|p{.25\textwidth}|p{.25\textwidth}}    % po potrebi razširi prvo kolono tabele na račun drugih dveh!
+        {\bf labela } & {\bf opis}                   & {\bf dimenzije}                      & {\bf podatkovni tip} \\ \hline
+        \multicolumn{4}{c}{Model: backbone}                                                                        \\
+        \hline
+        img           & iskalno območje              & $ 1 \times 3 \times 128 \times 128 $ & float16              \\
+        \hline
+        \multicolumn{4}{c}{Model: complete}                                                                        \\
+        \hline
+        img\_x        & iskalno območje              & $ 1 \times 3 \times 320 \times 320 $ & float16              \\
+        feat\_z       & sekveca značilk matrice      & $ 64 \times 1 \times 128 $           & float16              \\
+        mask\_z       & maska matrice                & $ 1 \times 64  $                     & bool                 \\
+        pos\_z        & pozicijsko kodiranje matrice & $ 64 \times 1 \times 128 $           & float16              \\
+        %  \dots & \dots & \dots \\
+    \end{tabular}
+    \caption{Tabela prikazuje uporabljene argumnte pri izvozu modelov v format \emph{ONNX}.}
+    \label{tab:onnx}
+\end{table}
+
+
+
+Ko je model uspešno izvožen v format \emph{ONNX}, ga lahko z orodjem, iz paketa OpenVINO, \emph{Model optimizer}
 
 
 %\cleardoublepage
