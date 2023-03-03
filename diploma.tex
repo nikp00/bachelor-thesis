@@ -35,6 +35,8 @@
 \usepackage{color}
 \usepackage{soul}
 
+\usepackage{mathtools}
+
 \usepackage[
 backend=biber,
 style=numeric,
@@ -410,7 +412,7 @@ Da bi lahko zagotovili, dobre performance, pri manjši porabi energije, so se za
 
 V okviru te diplomske naloge smo se osredotočili na sledilnik STARK \cite{stark}, ter vgrajeno napravo Luxonis OAK-1. Cilj naloge je bil sledilnik prilagoditi uporabi na tej napravi, ga prevesti v potreben format, ter ga umestiti v cevovod. Cevovod je bilo potrebno tudi smiselno zasnovati, da v model pridejo pravilno oblikovani podatki.
 
-Diplomsko delo je razdeljeno v 5 delov. V poglavju 2 bomo prestavili pregled področja. V poglavju 3 bomo opisali metodologijo, to zavzema hiter opis nevronskih mrež na splošno, arhitekture CNN in transformer ter predstavitev izbranega sledilnika. V poglavju 4 bomo opisali podrobnosti implementacije, kar vključuje opis uporabljene vgrajene naprave, prilagoditev modela ter njegovo pretvorbo v pravilen format, opis implementacije cevovoda in opis 4 različnih načinov delovanja, ki smo jih pripravili. V poglavju 5 bomo prestavili rezultate evalvacije, osredotočili se bomo na primerjavo med sledilnikom, ki je bil pognan samostojno na vgrajeni napravi proti tistemu, ki je pognan na osebnem računalniku. Predstavili bomo tudi rezultate primerjave med dvema načinoma delovanja, robni \emph{ang. edge mode} proti gostiteljskemu \emph{ang. host mode} načinu delovanja. V poglavju 6 je zaključek, ki povzema ugotovitve, ter predstavi možne izboljšave za nadaljnji razvoj.
+Diplomsko delo je razdeljeno v 5 delov. V poglavju 2 bomo prestavili pregled področja. V poglavju 3 bomo opisali metodologijo, to zavzema hiter opis nevronskih mrež na splošno, arhitekture CNN in transformer ter predstavitev izbranega sledilnika. V poglavju 4 bomo opisali podrobnosti implementacije, kar vključuje opis uporabljene vgrajene naprave, prilagoditev modela ter njegovo pretvorbo v pravilen format, opis implementacije cevovoda in opis 4 različnih načinov delovanja, ki smo jih pripravili. V poglavju 5 bomo prestavili rezultate evalvacije, osredotočili se bomo na primerjavo med sledilnikom, ki je bil pognan samostojno na vgrajeni napravi proti tistemu, ki je pognan na osebnem računalniku. Predstavili bomo tudi rezultate primerjave med dvema načinoma delovanja, robni \emph{(ang. edge mode)} proti gostiteljskemu \emph{(ang. host mode)} načinu delovanja. V poglavju 6 je zaključek, ki povzema ugotovitve, ter predstavi možne izboljšave za nadaljnji razvoj.
 
 \chapter{Pregled področja}
 \label{ch:0}
@@ -616,7 +618,7 @@ Model uporablja novo zasnovani sistem za predikcijo omejevalnega okvirja, ki del
 V tem poglavju bomo najprej predstavili vgrajeno napravo Luxonis OAK-1, ogrodji OpenVINO in DepthAI, na kratko predstavili vsa ostala uporabljena orodja in tehnologije ter na koncu podrobno opisali postopek implementacije.
 
 \section{Luxonis OAK-1}
-Luxonis je Ameriško podjetje, ki se ukvarja z razvojem naprav za uporabo na področju prostorske umetne inteligence \emph{(ang. spatial AI)} in računalniškega vida. Od ostalih jih razlikuje odptokodnost vseh njihovih naprav in ogrodja \emph{(ang. framework)} DepthAI. Ponujajo več različnih različic naprav, vse pa je skupno to, da imajo integriran čip Intel Movidus MyriadX, ki ponuja relativno visoke performance, pri tem pa zavzame malo prostora in porabi malo energije. Njihove izdelke lahko razdelimo na grobo razdelimo glede na 2 karakteristiki. Glede na zmožnost zajemanja slike (mono ali stereo) in glede na način napajanja in komunikacije (USB ali Ethernet in PoE). V tem delu smo uporabili napravo OAK-1, ki omogoča zajem mono slike, napaja in komunicira pa preko USB.
+Luxonis je Ameriško podjetje, ki se ukvarja z razvojem naprav za uporabo na področju prostorske umetne inteligence \emph{(ang. spatial AI)} in računalniškega vida. Od ostalih jih razlikuje odprtokodnost vseh njihovih naprav in ogrodja \emph{(ang. framework)} DepthAI. Ponujajo več različnih različic naprav, vsem pa je skupno to, da imajo integriran čip Intel Movidus MyriadX, ki ponuja relativno visoke performance, pri tem pa zavzame malo prostora in porabi malo energije. Njihove izdelke lahko na grobo razdelimo glede na 2 karakteristiki. Glede na zmožnost zajemanja slike (mono ali stereo) in glede na način napajanja in komunikacije (USB ali Ethernet in PoE). V tem delu smo uporabili napravo OAK-1, ki omogoča zajem mono slike, napaja in komunicira pa preko USB-C. Naprava OAK-1 je prikazana na sliki \ref{img:oak}.
 
 \begin{figure}[ht]
     \begin{center}
@@ -626,38 +628,46 @@ Luxonis je Ameriško podjetje, ki se ukvarja z razvojem naprav za uporabo na pod
     \label{img:oak}
 \end{figure}
 
-V osrčju naprave je modul RVC2 \emph{(Robotic Vision Core 2)}. Modul ponuja 4 TOPS procesorske poči, od katerih he je 1.4 TOPS rezerviranih za izvajanje nevronskih mrež. Podpira pa tudi hardversko kodiranje slikovnih tokov (H.264, H.265, MJPEG), pospešeno izvajanje pogostih operacij v računalniškem vidu (skaliranje, rezanje, zaznavanje robov, itd.). V osrčju modula je Intelov sistem na čipu \emph{(ang. system on chip, SoC)} Movidus Myriad X vključuje Intelov NCE \emph{(Neural compute engine)}, 16 vektorskih procesorskih enot SHAVE, 20 hardverskih pospeševalnih enot poimenovanih \emph{Enhanced Vision Accelerators}, ter 2.5 MB vgrajenega hitrega homogenega spomina.
+V osrčju naprave je modul RVC2 \emph{(Robotic Vision Core 2)}. Modul ponuja 4 TOPS procesorske moči, od katerih je 1.4 TOPS rezerviranih za izvajanje nevronskih mrež. Podpira pa tudi hardversko kodiranje slikovnih tokov (H.264, H.265, MJPEG), pospešeno izvajanje pogostih operacij v računalniškem vidu (skaliranje, rezanje, zaznavanje robov, itd.). V osrčju modula je Intelov sistem na čipu \emph{(ang. system on chip, SoC)} Movidus Myriad X, ki vključuje Intelov NCE \emph{(Neural compute engine)}, 16 vektorskih procesorskih enot SHAVE, 20 hardverskih pospeševalnih enot poimenovanih \emph{Enhanced Vision Accelerators}, ter 2.5 MB vgrajenega hitrega homogenega spomina.
 
 \section{DepthAI}
 DepthAI je hkrati programsko ogrodje \emph{(ang. framework)} in tudi ekosistem odprtokodne programske in hardverske opreme, ki ga razvija podjetje Luxonis. Ogrodje je na voljo v dveh izvedbah, ogrodje za programski jezik Python in izvedba za programski jezik C++. Ogrodje nam olajša uporabo naprav, saj ponuja programski vmesnik \emph{(ang. Application Programming Interface, API)}, s katerim lahko odstopamo do resursov naprave. Princip delovanja stoji na cevovodni arhitekturi. Cevovod je sestavljen iz med-seboj povezanih vozlišč, ki se izvajajo na napravi. V ogrodju imamo na razpolago več različnih tipov vozlišč, spodaj je navedenih nekaj najbolj uporabljenih:
 \begin{itemize}
-    \item vozlišče za manipuliranje slike \emph{ImageManip}, ki nam omogoča enostavno manipulacijo s slike (skaliranje, izrezovanje, pretvorba formatov, itd.),
+    \item vozlišče za manipuliranje slike \emph{ImageManip}, ki nam omogoča enostavno manipulacijo slike (skaliranje, izrezovanje, pretvorba formatov, itd.),
     \item vozlišče za konfiguriranje in interakcijo z kamero \emph{ColorCamera},
     \item vozlišče za pretok podatkov preko USB povezave v semri iz naprave na gostiteljski sistem \emph{XLinkOut},
     \item vozlišče za pretok podatkov preko USB povezave v semri iz gostiteljskega sistema v napravo \emph{XLinkIn},
-    \item vozlišče za izvajanje pomeri narejenih skript na naparvi \emph{Script}. Skripte morajo biti napisane v programskem jeziku Python,
-    \item vozlišče za uporabo pomeri narejenih nevronskih mrež na napravi \emph{NeuralNetwork}. Nevronske mreže morajo bit prevedene v pravilen format,
+    \item vozlišče za izvajanje pomeri narejenih skript na naparvi - \emph{Script}. Skripte morajo biti napisane v programskem jeziku Python,
+    \item vozlišče za uporabo pomeri narejenih nevronskih mrež na napravi - \emph{NeuralNetwork}. Nevronske mreže morajo bit prevedene v pravilen format,
 \end{itemize}
 
 \section{OpenVINO}
-OpenVINO je komplet odprtokodnih orodji, ki nam omogočajo optimizacijo in prevajanje modelov v format, ki je primeren za delovanje na najrazličnejših napravah, med drugimi tudi VPU Intel Movidus MyriadX. Vsak model je potrebno najprej pravilno prilagoditi, da ustreza zahtevam in omejitvam ciljnega sistema.
+OpenVINO je komplet odprtokodnih orodji, ki nam omogočajo optimizacijo in prevajanje modelov nevronskih mrež v format, ki je primeren za delovanje na najrazličnejših napravah, med drugimi tudi VPU Intel Movidus MyriadX. Vsak model je potrebno najprej pravilno prilagoditi, da ustreza zahtevam in omejitvam ciljnega sistema.
 
-Pri prilaghajanju moremo biti pozorni na tipe slohjev ki so uporabljeni v modelu, saj vsi sloji niso podprti na vseh napravah. Upoštevati je tudi treba, model ne more več pomniti dinamičnega stanja, predstavljamo si lahko, da model ni več kos programske opreme, temveč samo zaporedje matematičnih operacij, ki prejme vhod in vrne izhod.
+Pri prilagajanju moremo biti pozorni na tipe slojev, ki so uporabljeni v modelu, saj vsi niso vsi podprti na vseh napravah. Upoštevati je treba tudi omejitev, da model ne more več pomniti dinamičnega stanja. Predstavljamo si lahko, da model ni več kos programske opreme, temveč samo zaporedje matematičnih operacij, ki prejme vhod in vrne izhod.
 
-Po prilagoditvi modela sledi korak optimizacije. Pri tem koraku se s pomočjo orodja \emph{Model optimizer}, izboljša računska in prostorska poraba modela. V tem koraku se podat tudi ciljni podatkovni tip uteži in ostalih fiksnih parametru model, imena izhodnih in vhodnih podatkov ter dimenzionalnost vhodnih podatkov. Pri podajanju dimenzionalnosti vhdonih podatkov moramo upoštevati, da nekatere ciljne naprave ne podpiranjo dinamičnih velikosti.
+Po prilagoditvi modela sledi korak optimizacije. Pri tem koraku se s pomočjo orodja \emph{Model optimizer}, izboljša računska in prostorska poraba modela. V tem koraku se poda tudi ciljni podatkovni tip uteži in ostalih fiksnih parametru model, imena izhodnih in vhodnih podatkov ter dimenzionalnost vhodnih podatkov. Pri podajanju dimenzionalnosti vhdonih podatkov moramo upoštevati, da nekatere ciljne naprave ne podpiranjo dinamičnih velikosti.
 
 Po optimizacijskem koraku sledi še zandji korak, prevajanje. Model je potrebno prevesti v pravilen format. Pri prevajanju moramo podati tip končne napave, podatkovni tip vhodnih podatkov in število vektorskih procesorjev SHAVE, ki jih bo model uporabil. Rezultat prevajanja je binarna datoteka v formatu \emph{.blob}.
 
 \section{Uporabljene tehnologije}
-Uporabljen je bil že naučen model STARK, bolj specifično STARK-Lightning. Gre za različico sledilnika, ki uporablja samo prostorsko informacijo, poleg tega pa se različica Lightning razlikuje še po tem, da porabi precej manj procesorske moči in prostora, seveda pa je posledica tega slabša natančnost. Model so \cite{stark} implementirali v ogrodju PyTorch, z uporabo programskega jezika Python, v katerem smo tudi mi nadaljevali z razvojem. Za lažji razvoj sta se uporabili dve konetejnerizirani okolji Docker. Eno okolje je bilo namenjeno razvoju modela v programskem jeziku Python, drugo okolje pa je bilo uporabljeno za namestitev in uporabo kompleta orodji OpenVINO. prednost uporabe kontejneriziranjih okolji je prenosljivost in reproduciranje rezultatov.
+Uporabljen je bil že naučen model STARK \cite{stark}, bolj specifično STARK Lightning. Gre za različico sledilnika, ki uporablja samo prostorsko informacijo, poleg tega pa se različica Lightning razlikuje še po tem, da porabi precej manj procesorske moči in prostora, seveda pa je posledica tega slabša natančnost. Model so \cite{stark} implementirali v ogrodju PyTorch, z uporabo programskega jezika Python, v katerem smo tudi mi nadaljevali z razvojem. Za lažji razvoj sta se uporabili dve konetejnerizirani okolji Docker. Eno okolje je bilo namenjeno razvoju modela v programskem jeziku Python, drugo okolje pa je bilo uporabljeno za namestitev in uporabo kompleta orodji OpenVINO. Prednost uporabe kontejneriziranih okolji je prenosljivost in reproduciranje rezultatov.
 
 \section{Prilagoditev modela}
-Model pri delovanju potrebuje vhdono iskalno območje, ki je izrezano iz vhdone slike. Iskalno območje je fiksne dimenzije, če gre za inicializacijski korak je to dimenzija $128*128$, pri vseh nadljnih korakih pa je dimenzija iskalnega območja $ 320*320 $. Izrezovanje iskalnega območja deluje tako, da iz vhdone slike izreže območje ki ga omejuje omejevalni okvir pomnožen z faktorjem iskanja, ki je v primeru inicializacije 2, v vseh naslednjih korakih pa 5. Pri tem je potrebno upoštevati, da je omejevalno območje pri robu slike, v tem primeru se sliki dodajo dodatni robovi \emph{(ang. padding)} z vrednostjo 0. Da dodani robovi ne bi uplivali na končni rezultat jih je potrebno maskirati, zato se pole iskalnega območja pripravi tudi maska. Maska ima vrednost 1, kjer je bil dodan rob, na ostalih mestih pa ima vrednost 0. V začetni implementaciji je bilo izdelovanje maske vmeščeno v predprocesiranje, ker pa si na vgrajeni napravi ne smemo privoščiti preveč obsežnega predprocesiranja smo se odločili da izdelovanje maske vključimo v sam model. Na začetek modela smo dodali dodaten modul, ki izračuna masko. Naj bo $ X_{1 \times 3 \times H \times W} $ vhodna iskalna regija, maks pa se izračuna po naslednjih korakih:
+Model pri delovanju potrebuje vhdono iskalno območje, ki je izrezano iz vhdone slike. Iskalno območje je fiksne dimenzije, če gre za inicializacijski korak je to dimenzija $128*128$, pri vseh nadljnih korakih pa je dimenzija iskalnega območja $ 320*320 $. Izrezovanje iskalnega območja deluje tako, da se iz vhdone slike izreže območje ki ga omejuje omejevalni okvir, katerega povečamo za določen faktor. Izračun faktorja $C$, ki predstavlja vrednost za katero se vhodni omejevalni okvir poveč, poteka po formuli \ref{eq:bbox}, kjer $w$ predstavlja širino, $h$ pa višino vhdonega omejevalnega okvirja. $F$ predstavlja faktor iskanja. Pri inicializacijske koraku im $F$ vrednost $2$, pri vseh ostalih korakih pa $5$.
+
+\begin{equation}
+    C = \lceil{\sqrt{w * h} * F} \rceil
+    \label{eq:bbox}
+\end{equation}
+
+
+Pri izrezovanju iskalnega območja je potrebno upoštevati, da je lahko iskalno območje pri robu slike, v tem primeru se sliki dodajo dodatni robovi \emph{(ang. padding)} z vrednostjo 0. Da dodani robovi ne bi uplivali na končni rezultat jih je potrebno maskirati, zato se poleg iskalnega območja pripravi tudi maska. Maska ima vrednost 1, kjer je bil dodan rob, na ostalih mestih pa ima vrednost 0. V začetni implementaciji je bilo izdelovanje maske vmeščeno v predprocesiranje, ker pa si na vgrajeni napravi ne smemo privoščiti preveč obsežnega predprocesiranja smo se odločili da izdelovanje maske vključimo v sam model. Na začetek modela smo dodali dodaten modul, ki izračuna masko. Naj bo $ X_{1 \times 3 \times H \times W} $ vhodna iskalna regija, maks pa se izračuna po naslednjih korakih:
 
 \begin{enumerate}
     \item izračunamo povprečje po 2. dimneziji matrike. Rezultat je matrika $ M_{1 \times 1 \times H \times W} $,
-    \item matriko preoblikujemo v $ M_{1 \times 1 \times H \times W} $,
-    \item da izločimo morebitne napake, ki bi jih lahko ta pristop povzročil (predpostavimo, da obstaja neničelna verjetnost, da bo kamera proizvedla vrednost piksla, katerag povreča vrednost bo 0), izvedemo še operacijo maksimalnega združevanja \emph{(ang. max pooling)} z velikostjo okna $ 3 \times 3 $.
+    \item za vsak piksel pri katerem je povprečna vrednost enaka 0, nastavimo vrednost maske na 1, za vse ostale piksele pa nastavimo vrednost maske na 0.
+    \item da izločimo morebitne napake, ki bi jih lahko ta pristop povzročil (predpostavimo, da obstaja neničelna verjetnost, da bo kamera proizvedla vrednost piksla, katerag povreča vrednost bo 0), izvedemo še operacijo maksimalnega združevanja \emph{(ang. max pooling)} z velikostjo okna $ 3 \times 3 $ in vrednostjo 1.
 \end{enumerate}
 
 \begin{figure}[htb]
@@ -668,10 +678,12 @@ Model pri delovanju potrebuje vhdono iskalno območje, ki je izrezano iz vhdone 
     \label{img:mask}
 \end{figure}
 
-Za enostavnejšo umestitev modela v cevovod, je model razdeljen na 2 dela. Prvi model, od sedaj naprej ga bomo poimenovali samo \textbf{backbone}, zajema samo hrbtenico, sloj ozkega grla in pozicijsko kodiranje. Ta model se uporabi ob inicializaciji. Drugi model, od sedaj naorej ga bomo poimenovali \textbf{complete}, pa ostaja nespremenjen in se uporablja pri vsakem nadaljnem koraku.
+Za enostavnejšo umestitev modela v cevovod, je model razdeljen na 2 dela. Prvi model, od sedaj naprej ga bomo poimenovali samo \textbf{backbone}, zajema samo hrbtenico, sloj ozkega grla in pozicijsko kodiranje. Ta model se uporabi ob inicializaciji. Drugi model, od sedaj naprej ga bomo poimenovali \textbf{complete}, pa ostaja nespremenjen in se uporablja pri vsakem nadaljnem koraku.
 
 \section{Prevajanje modela}
-Model je najprej potrebno iz ogrodja PyTorch izvoziti v format \emph{ONNX}. \emph{ONNX} je odprtokodni format za shranjevanje modelov, ki ga je ustvarila Microsoft. Za izvoz lahko uporabi funckionalnost, ki je vgrajena v PyTorch. Pri izvotu moramo podati, primer vhodnih podatkob, ter poimenovati - labelirati vhodne argumente. V tabeli \ref{tab:onnx} so podani uporabljeni argumenti.
+Za lažjo pripravo delovnega okolja in programksega paketa OpenVINO je bilo uporabljeno kontejnerizirano okolje Docker.
+
+Model je najprej potrebno iz ogrodja PyTorch izvoziti v format \emph{ONNX}. \emph{ONNX} je odprtokodni format za shranjevanje modelov, ki ga je ustvarila Microsoft. Za izvoz lahko uporabi funckionalnost, ki je vgrajena v PyTorch. Pri izvotu moramo podati, primer vhodnih podatkov, ter poimenovati - labelirati vhodne in izhodne argumente. V tabeli \ref{tab:onnx} so podani uporabljeni argumenti.
 
 \begin{table}[htb]
     \begin{tabular}{p{0.1\textwidth}|p{.4\textwidth}|p{.25\textwidth}|p{.25\textwidth}}    % po potrebi razširi prvo kolono tabele na račun drugih dveh!
@@ -694,8 +706,148 @@ Model je najprej potrebno iz ogrodja PyTorch izvoziti v format \emph{ONNX}. \emp
 
 
 
-Ko je model uspešno izvožen v format \emph{ONNX}, ga lahko z orodjem, iz paketa OpenVINO, \emph{Model optimizer}
+Ko je model uspešno izvožen v format \emph{ONNX}, ga lahko z orodjem, iz paketa OpenVINO, \emph{Model optimizer} optimiziramo in predpripravimo za zadnji korak - prevajanje. \emph{Model optimizer} je orodje, ki nam omogoča optimizacijo modelov. V našem primeru kot vhod prejme model v formatu \emph{ONNX}. Podobno kot pri izvotu v format \emph{ONNX}, moramo tudi pri optimizaciji podati argumente, ki določajo imena in dimenzionalnosti vhodnih podatkov, ter imena izhodnih podatkov. Izhod optimizacijeksega orodja sta dve datoteki. Prva je v formatu \emph{.xml} in opisuje topologijo modela, druga pa v formatu \emph{.bin} in vsebuje vrednosti uteži in parametrov modela.
 
+V zadnjem koraku moramo model prevesti v binarni format, ki se lahko uporabi na procesorski enoti MyriadX. V ta namen se je uporabilo prodje \emph{compile tool} iz programksega paketa OpenVINO. Orodju podamo pot do \emph{.xml} in \emph{.bin} datotek, ki jih je ustvaril \emph{Model optimizer} ter potrbne argumente. Argumenti, ki smo jih uporabili so sledeči:
+
+\begin{itemize}
+    \item \textbf{-d MYRIAD}, argument določa ciljno platformo, na kateri bo model uporabljen. V našem primeru je to procesorska enota MyriadX.
+    \item \textbf{-ip U8} ali \textbf{-ip FP16}, argument določa podatkovni tip vhodnih podatkov. V našem primeru je to nepredznačeni 8-bitni celoštevilski tip ali pa 16-bitno število v plavajoči vejici.
+    \item \textbf{-VPU\_NUMBER\_OF\_SHAVES x}, argument določa število vektorskih procesorskih enot \emph{SHAVE}, ki jih bo uporabljal model. Simbol \emph{x} je pri prevajanju modela \textbf{complete} imel vrednost 8, pri modelu \textbf{backbone} pa 1.
+\end{itemize}
+
+\subsubsection{Nekompatibilnost podatkovnih tipov}
+\label{section:nekompatibilnost}
+Med tem ko smo optimizirali model, smo se zavedali, da imamo težavo. Vsi vhodni podatki modela morajo biti enakega podatkovnega tipa, ampak slikovni podatki so v formatu \emph{UINT8}, vsi ostali pa v formatu \emph{FLOAT16}. Problem smo rešili tako, da smo dodali dodatno nevronsko mrežo, ki služi samo za pretvorbo podatkov iz \emph{UINT8} v \emph{FLOAT16}. Ta rešitev je bila najbolj optimalna saj omogoča najhitrejše izvajanje pretvorbe.
+
+\subsection{DepthAI cevovod}
+\label{sec:pipeline}
+Vso funkcijonalnost, ki jo želimo izvajati na vgrajeni napravi je potrbno vmestiti v cevovod. Cevovod je sestavljen iz različnih vrst vozlišč, ki so med seboj povezana in tako tvorijo cevovod. V tem delu smo uporabil nasledje tipe vozlišč:
+
+\begin{itemize}
+    \item \textbf{ColorCamera}, vozlišče, ki omogoča pridobivanje slik iz kamere.
+    \item \textbf{XLinkIn}, vozlišče, ki omogoča pretok podatkov iz gostiteljskega sistema na vgrajeno napravo.
+    \item \textbf{XLinkOut}, vozlišče, ki omogoča pretok podatkov iz vgrajene naprave na gostiteljski sistem.
+    \item \textbf{NeuralNetwork}, vozlišče, v katerem se izvaja model, ki smo ga prevedli v binarni format.
+    \item \textbf{Srcipt}, vozlišče, v katerem se izvaja Python skripta. Vozlišče je namenjeno posredovanju, usmerjanju in lažjemu procesiranju podatkov.
+    \item \textbf{ImageManip}, vozlišče, ki omogoča manipulacijo slik. V našem primeru je bilo uporabljeno za skaliranje slike in izrezovanju iskalnega območja.
+\end{itemize}
+
+
+V sklopu naloge, so bili razviti in implmentirani štirje tipi cevovoda, kar posledično pomeni širje različni načini delovanja sledilnika. Implementirane načine lahko razdelimo glede na dve značilnosti:
+
+\begin{enumerate}
+    \item \textbf{vir slikovnega toka}: iz vgrajene kamer, v nadaljevanju poimenovan \emph{cam}, ali iz gostiteljskega sistema, v nadaljevanju poimenovan \emph{synthetic},
+    \item \textbf{način procesiranja}: celotno procesiranje na vgrajeni napravi, v nadaljevanju poimenovan \emph{edge}, ali pa delno na vgrajeni napravi in delno na gostiteljskem sistemu, v ndaljevanju poimenovan \emph{host}
+\end{enumerate}
+
+Zaradi naštetih značilnosti, se štiri različice cevovoda (\emph{edge cam mode}, \emph{edge synthetic mode}, \emph{host cam mode} in \emph{host synthetic mode}) med sabo nekoliko razlikujejo. Vseeno pa imajo nekaj skupnih elementov. Na slikah \ref{img:edge_cam}, \ref{img:edge_synth}, \ref{img:host_cam} in \ref{img:host_synth} so prikazani diagrami štirih cevovodov. V nadaljevanju bomo opisali vsakega od štirih načinov delovanja.
+
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=1\textwidth]{img/edge_cam.png}
+    \end{center}
+    \caption{Diagram cevovoda \emph{edge cam mode}, ki uporablja slikovni tok iz vgrajene kamere ter vse procesiranje opravi na vgrajeni napravi.}
+    \label{img:edge_cam}
+\end{figure}
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=1\textwidth]{img/edge_synth.png}
+    \end{center}
+    \caption{Diagram cevovoda \emph{edge synthetic mode}, ki uporablja slikovni tok iz gostiteljskega sistema vendar vse procesiranje opravi na vgrajeni napravi.}
+    \label{img:edge_synth}
+\end{figure}
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=1\textwidth]{img/host_cam.png}
+    \end{center}
+    \caption{Diagram cevovoda \emph{host cam mode}, ki uporablja slikovni tok iz vgrajene kamere vendar na vgrajeni napravi opravi le napoved z nevronsko mrežo.}
+    \label{img:host_cam}
+\end{figure}
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=1\textwidth]{img/host_synth.png}
+    \end{center}
+    \caption{Diagram cevovoda \emph{host synthetic mode}, ki uporablja slikovni tok iz gostiteljskega sistema in na vgrajeni napravi opravi le napoved z nevronsko mrežo.}
+    \label{img:host_synth}
+\end{figure}
+
+
+\subsubsection{Edge synthetic mode}
+\label{sec:edge_synth}
+V tem načinu se celotno procesiranje odvija na vgrajeni napravi, vir slikovnega toka pa je gostiteljski sistem. Slikovni tok se preko vozlišča tipa \emph{XLinkIn} pretaka na vgrajeno napravo. Sledilnik od gostiteljskega sistema v vsakem koraku potrebuje novo sličico, v prve koraku pa tudi začetni omejitveni okvir. Gostiteljski sistem, pa po vsakem koraku prejme napovedani omejevalni okvir, ki ga je napovedal model. Ta način delovanja je bil primarno razvit v namene testiranja in evalvacije, saj omogoča ponovljivo testiranje z umetnim slikovnim tokom.
+
+Kot je prikazano na sliki \ref{img:edge_synth}, se vsaka sličica, po prehodu na vgrajeno napravo, najprej skalira na dimenzije $ 640 \times 840 $, potem pa preide v vozlišče tipa \emph{Script}, v katerem se izvaja vsa vezna logika. Korak skaliranja smo dodali, da bi lahko zagotovili neodvisnost od uporabljenga vira slikovnega toka in njegove resolucije.
+
+Vezna logika opravlja nalogo usmerjnanja podatkov v pravilno vejo cevovoda (backbone ali complete), računanja in nastavljnanj nastavitev vozlišča za izrez iskalnega območja ter preslikovanja omejitvenega okvirja na začetno velikost vhodne sličice. Usmerjanje se odvija na podlagi vhodnega podatka o novem omejitvenem okvirju. Če je s strani gostiteljskega sistema prišel nov omejitveni okvir, to pomeni da je sledilnik potrebno ponovno inicializirati (backbone), če pa tega podatka ni na vhdou se odvije korak sledenja (complete). V koraku inicilizacije se izvede del mreže poimenovan backbone, ki izračuna vektorje vhdone vdelave, pozicijskega kodiranja in maske, te podatke vezna logika znotraj vozlišča \emph{Script} ponovno sprejme in ob vsakem naslednjem koraku posreduje v vejo \emph{complete}. V vseh korakih sledenja vezakna logika posreduje slikovni element in vse tri vektoje pridobljene iz inicializacijeksega koraka v vejo cevovoda poimenovano \emph{complete}. Ko vezna logika, iz veje \emph{complete} prejme napovedan omejitveni okvir, ga ponovno preslika na začetno velikost vhodne sličice in ga posreduje na izhodno vozlišče tipa \emph{XLinkOut}. V obeh primerih, pa je potrebno slikovne podatke, ki so v podatkovnem tipu \emph{UINT8}, pretvoriti v \emph{FLOAT16}. Za to sta zadolženi dve vozlišči, vsako v svoji pripadajoči veji, v katerih se izvaja preprosta nevronska mreža, ki sprejme podatke tipa \emph{UINT8} in odda podatke tipa \emph{FLOAT16}. Za tako rešitev smo se odločili zaradi hitrosti izvajanja, saj je to trenutno najboljša rešitev, ki jo omogoča DepthAI. Več o tem problemu in rešitvi smo opisali v poglavju \ref{section:nekompatibilnost}.
+
+
+
+\subsubsection{Edge cam mode}
+\label{sec:edge_cam}
+Ta način se od \ref{sec:edge_synth} razlikuje samo v tem, da slikovni tok prejme iz vgrajene kamere. Od gostiteljskega sistema pričakuje samo omejitveni okvir, v vseh nadaljnih korakih pa sledilnik samostojno sledi objektu in gostiteljskemu sisitemu vrača napovedan omejitveni okvir in sličico, ki jo je sledilnik pridobil iz vgrajene kamere. Diagram zgradbe cevovoda je prikazan na sliki \ref{img:edge_cam}.
+
+Da bi omogočilo enostavno uporabo smo za oba tipa sledilnika, ki uporabljata podatke iz vgrajene kamere, razvili preprost uporabniški vmesnik. Uporabniški umesnik omogoča označevanje objekta in prikaz napovedanega omejitvenega okvirja. Celoten sistem je zasnovan na tak način, da lahko uporabnik v bilokaterem trenutku označi novo tarčo za sledenje.
+
+\subsubsection{Host synthetic mode}
+\label{sec:host_synth}
+V tem načinu se na vgrajeni napravi izvaja samo napovedovanje z nervonskimi mrežami. Zgradba cevovoda je v primerjavi z prejšnjima dvema načinoma (\emph{edge}) precej bolj enostavna. Cevovod je razdeljen na dve popolnoma ne povezani veji \emph{backbone} in \emph{complete}. Vsa vezna logika in izrezovanje iskalnega območja, ki se je pri prejšnjih dveh načinih izvajala v cevovodu, se sedaj izvaja na gostiteljskem sistemu. Ker se v tem načinu uporablja sintetični slikovni tok, gostiteljski sistem na vgrajeno napravo najprej pošlje sličico in začetni omejitveni okvir, ki sta potrebna za inicializacijo sledilnika. Kot rezultat inicializacije gostiteljski sistem prejme 3 matrike, ki jih proizvede model \emph{backbone}. V vseh nadaljnih korakih, ko se izvaja sledenje, pa gostitleljski sistem poleg sličice pošlje tudi 3 matrike, ki jih je sprejel v inicializacijeksem koraku. Kot rezultat koraka sledenja pa gostiteljski sistem sprejme napovedan omejitveni okvir. Diagram zgradbe cevovoda je prikazan na sliki \ref{img:host_synth}.
+
+\subsubsection{Host cam mode}
+V tem načinu sistem deluje popolnoma enako, kot v \ref{sec:host_synth}, le da je na začetek vrinjen še dodaten korak. Ker se v tem načinu delovanja uporablja slikovni tok iz vgrajene kamere, mora gostiteljski sistem najprej iz vgrajene naprave prebrati sličico.
+
+
+\chapter{Evalvacija? Diskusija?}
+Prvi aspekt, ki smo ga evalvirali je hitrost sledilnika. Ugotovili smo, da v vseh štirih načinih delovanja sledilnik dosega porvpečno hitrost 10 FPS. Iz te ugotovitve lahko izpeljemo zaključek da je ozko grlo v sistemu izvajanje nevronske mreže. To smo zudi potrdili z izvajanjem meritev časa izvajanja posameznih delov cevovoda. Ugotovili smo, da korak v katerem se izvaja nevronska mreža \emph{complete} traja v povprečju kar 68 ms. Vsi ostali koraki pa v povprečju doprinesejo še 30 ms. Seštevek vseh koraku pa znaša približno 100ms, kar je tudi v skladu z izmerjenimi 10 FPS.
+
+Evalvirali smo tudi točnost sledilnika. Uporabili smo test VOT-ST2021 \cite{vot2021} saj je na tem testu bil leta 2021 testiran in primerjan model STARK\_RT \cite{stark}. Na testu VOT-ST2021, je bila testirana različica modela STARK - STARK\_RT, mi pa smo v tem delu uporabili poenostavljeno različico STARK Lightning. Na sliki \ref{img:vot2021_res} so prikazani rezultati testa VOT-ST2021, na sliki \ref{img:vot_res} pa rezultati, ki smo jih dosegli mi. Za Evalvacijo smo uporabili dve vrsti sledilnika, prvi je uporabljal \ref{sec:edge_synth} arhitekturo, drugi pa je bil pognan na osebnem računalniku v okolju \emph{ONNX Runtime}. S tem smo hoteli preveriti razliko med modeli, ki spo bili prevedeni v OpenVINO format in so omejeni na 16-bitne vrednosti v plavajoči vejici in modelom, ki teh omejitev nima.
+
+Če najprej primerjamo rezultate, ki smo jih dobili z uporabo sledilnika STARK Lightning \ref{img:vot_res} v primerjavi z STARK\_RT \ref{img:vot2021_res}, lahko opazimo, da smo dobili polovico slabše rezultate, kar je bilo tudi pričakovano. Spodbudno je dejstvo, da četudi smo uporabili zelo okrnjeno različico modela, ki lahko popolnoma samostojno deluje na vgrjeni napravi, ne bi bili najslabši na testiranju.
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=0.8\textwidth]{img/vot2021_res.png}
+    \end{center}
+    \caption{Slika prikazuje rezultate testa VOT2021, na eksperimentu \emph{baseline} in \emph{realtime} \cite{vot2021}.}
+    \label{img:vot2021_res}
+\end{figure}
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=0.6\textwidth]{img/vot.png}
+    \end{center}
+    \caption{Slika prikazuje rezultate testov, ki smo jih izvedli nad našo implmentacijo sledilnika.}
+    \label{img:vot_res}
+\end{figure}
+
+Zanimla nas je tudi primerjava med modelom, ki je optimiziran za delovanje na vgrajeni napravi in navadno implementacijo modela, ki se lahko izvaja znotraj okolja ONNX. Iz slik \ref{img:vot_bs_res} in \ref{img:vot_bs_frames} lahko opazimo, da je delovanje sledilnika v obeh primerih identično. Iz tega lahko sklepamo, da se med optimiziranjem in prevajanjem model v OpenVINO format, ni izgubila nobena informacija, ki bi lahko vplivala na delovanje modela. Sklepamo pa lahko tudi to da zmanjšanje resolucije podatkovnega tipa iz 32 bitne plavajoče vejice v 16 bitno plavajočo vejico, ne vpliva na kvaliteto modela.
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=0.6\textwidth]{img/vot_bs_acc.png}
+    \end{center}
+    \caption{Slika prikazuje retultat testa VOT-ST2021 uporabljenih sledilnikov. Graf prikazuje povprečno natančnost v odvisnosti od povprečne robustnosti.}
+    \label{img:vot_bs_res}
+\end{figure}
+
+\begin{figure}[htb]
+    \begin{center}
+        \includegraphics[width=0.6\textwidth]{img/vot_bs_frames.png}
+    \end{center}
+    \caption{Slika prikazuje retultat testa VOT-ST2021 uporabljenih sledilnikov. Graf prikazuje pričakovano povprečno prekrivanje omejitvenih okvirjev skozi čas.}
+    \label{img:vot_bs_frames}
+\end{figure}
+
+\chapter{Zaključek}
+V diplomskem delu smo implementirali in ovrednotili delovanje modernega vizualnega sledilnika STARK. Sledilnik deluje na osnovi umetnih nevronskih mrež, bolj natančno umethinh nevronskih mrež z arhitekjturo transformer. Med pregledom objavljenih del na temo vizualnega sledenja na vrgajenih napravah nismo našli nobenega, ki bi uporabil sledilnika z najmodrenejšo arhitekturo - transformer. Cilj dela je bil preučiti možnosti take implementacije, sama implementacija ter ovrednotenje delovanja sledilnika. Sledilnik smo impmementirali na vgrjanei napravi Luxonis OAK-1, ki podpira ekosistem DepthAI. Zaradi omejene procesorske moči smo se odločili za uporabo poenostavljene različice modela STARK - STARK Lightning. Sledilnik je bilo najprej potrebno predelati, ga pretvoriti v ONNX format ter ga s pomočjo nabora orodji OpenVINO optimizirati in prevesti v binarno obliko. V okolju DepthAI je bilo potrbno zasnovati cevovod, ter vanga vmestiti model. Za testiranje sledilnika smo uporabili testni nabor podatkov VOT-ST2021. Rezultati testiranja so pokazali, da je implementacija na vgrajeni napravi enaka tisti v okolju ONNX Runtime.
+
+Implemetirali smo 4 različne načine delovanja, ki so podrobneje opisani v \ref{sec:pipeline}. Način delovanja, ki bi bil najbolj uporaben v realnem svetu \ref{sec:edge_cam}, uporabniku v realnem času prikazuje sliko, ki jo zajema kamera. Uporabnik lahko na sliki označi željeno tarčo, sledilnik pa bo tej tarči začel slediti in okoli nje izrisovati omejitveni okvir. Uporabnik lahko v bilokaterem trenutku označi novo tarčo za sledenje.
+
+Največja slabost naše implementacije je hitrost delovanja. Sledilnik deluje z povprečno 10 FPS, kar je premalo, da bi ga lahko uvrstili med sledilnike, ki delujejo v realnem času. Ugotovili smo, da je ozko grlo v sistemu ravno napovedovanje z nevronsko mrežo, saj v povprečju traja kar 68 ms, vse ostalo procesiranje pa doprinese se 30ms. V tej smeri je odrpto še veliko možnosti za optimizacijo in predelave modela, ki bi lahko skrajšalo čas izvajanja.
 
 %\cleardoublepage
 %\addcontentsline{toc}{chapter}{Literatura}
