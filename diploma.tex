@@ -734,7 +734,7 @@ Vso funkcijonalnost, ki jo želimo izvajati na vgrajeni napravi je potrbno vmest
 \end{itemize}
 
 
-V sklopu naloge, so bili razviti in implmentirani štirje tipi cevovoda, kar posledično pomeni širje različni načini delovanja sledilnika. Implementirane načine lahko razdelimo glede na dve značilnosti:
+V sklopu naloge, so bili razviti in implmentirani štirje tipi cevovoda, kar posledično pomeni štirje različni načini delovanja sledilnika. Implementirane načine lahko razdelimo glede na dve značilnosti:
 
 \begin{enumerate}
     \item \textbf{vir slikovnega toka}: iz vgrajene kamer, v nadaljevanju poimenovan \emph{cam}, ali iz gostiteljskega sistema, v nadaljevanju poimenovan \emph{synthetic},
@@ -779,7 +779,7 @@ Zaradi naštetih značilnosti, se štiri različice cevovoda (\emph{edge cam mod
 
 \subsubsection{Edge synthetic mode}
 \label{sec:edge_synth}
-V tem načinu se celotno procesiranje odvija na vgrajeni napravi, vir slikovnega toka pa je gostiteljski sistem. Slikovni tok se preko vozlišča tipa \emph{XLinkIn} pretaka na vgrajeno napravo. Sledilnik od gostiteljskega sistema v vsakem koraku potrebuje novo sličico, v prve koraku pa tudi začetni omejitveni okvir. Gostiteljski sistem, pa po vsakem koraku prejme napovedani omejevalni okvir, ki ga je napovedal model. Ta način delovanja je bil primarno razvit v namene testiranja in evalvacije, saj omogoča ponovljivo testiranje z umetnim slikovnim tokom.
+V tem načinu se celotno procesiranje odvija na vgrajeni napravi, vir slikovnega toka pa je gostiteljski sistem. Slikovni tok se preko vozlišča tipa \emph{XLinkIn} pretaka na vgrajeno napravo. Sledilnik od gostiteljskega sistema v vsakem koraku potrebuje novo sličico, v prvem koraku pa tudi začetni omejitveni okvir. Gostiteljski sistem, pa po vsakem koraku prejme napovedani omejevalni okvir, ki ga je napovedal model. Ta način delovanja je bil primarno razvit v namene testiranja in evalvacije, saj omogoča ponovljivo testiranje z umetnim slikovnim tokom.
 
 Kot je prikazano na sliki \ref{img:edge_synth}, se vsaka sličica, po prehodu na vgrajeno napravo, najprej skalira na dimenzije $ 640 \times 840 $, potem pa preide v vozlišče tipa \emph{Script}, v katerem se izvaja vsa vezna logika. Korak skaliranja smo dodali, da bi lahko zagotovili neodvisnost od uporabljenga vira slikovnega toka in njegove resolucije.
 
@@ -804,42 +804,56 @@ V tem načinu sistem deluje popolnoma enako, kot v \ref{sec:host_synth}, le da j
 \chapter{Evalvacija? Diskusija?}
 Prvi aspekt, ki smo ga evalvirali je hitrost sledilnika. Ugotovili smo, da v vseh štirih načinih delovanja sledilnik dosega porvpečno hitrost 10 FPS. Iz te ugotovitve lahko izpeljemo zaključek da je ozko grlo v sistemu izvajanje nevronske mreže. To smo zudi potrdili z izvajanjem meritev časa izvajanja posameznih delov cevovoda. Ugotovili smo, da korak v katerem se izvaja nevronska mreža \emph{complete} traja v povprečju kar 68 ms. Vsi ostali koraki pa v povprečju doprinesejo še 30 ms. Seštevek vseh koraku pa znaša približno 100ms, kar je tudi v skladu z izmerjenimi 10 FPS.
 
-Evalvirali smo tudi točnost sledilnika. Uporabili smo test VOT-ST2021 \cite{vot2021} saj je na tem testu bil leta 2021 testiran in primerjan model STARK\_RT \cite{stark}. Na testu VOT-ST2021, je bila testirana različica modela STARK - STARK\_RT, mi pa smo v tem delu uporabili poenostavljeno različico STARK Lightning. Na sliki \ref{img:vot2021_res} so prikazani rezultati testa VOT-ST2021, na sliki \ref{img:vot_res} pa rezultati, ki smo jih dosegli mi. Za Evalvacijo smo uporabili dve vrsti sledilnika, prvi je uporabljal \ref{sec:edge_synth} arhitekturo, drugi pa je bil pognan na osebnem računalniku v okolju \emph{ONNX Runtime}. S tem smo hoteli preveriti razliko med modeli, ki spo bili prevedeni v OpenVINO format in so omejeni na 16-bitne vrednosti v plavajoči vejici in modelom, ki teh omejitev nima.
+Evalvirali smo tudi točnost sledilnika. Uporabili smo test VOT-ST2021 \cite{vot2021} saj je na tem testu bil leta 2021 testiran in primerjan model STARK\_RT \cite{stark}. Na testu VOT-ST2021, je bila testirana različica modela STARK - STARK\_RT, mi pa smo v tem delu uporabili poenostavljeno različico STARK Lightning. Na sliki \ref{img:vot_ar} je graf, ki prikazuje povprečno natančnost v odvisnosti od povprečne robustnosti treh različic modela Stark. Graf na sliki \ref{img:vot_frames} pa prikazuje pričakovano povprečno prekrivanje omejitvenih okvirjev skozi čas. Za Evalvacijo smo uporabili dve vrsti sledilnika, prvi je uporabljal \ref{sec:edge_synth} arhitekturo, drugi pa je bil pognan na osebnem računalniku v okolju \emph{ONNX Runtime}. S tem smo hoteli preveriti razliko med modeli, ki so bili prevedeni v OpenVINO format in so omejeni na 16-bitne vrednosti v plavajoči vejici in modelom, ki teh omejitev nima.
 
-Če najprej primerjamo rezultate, ki smo jih dobili z uporabo sledilnika STARK Lightning \ref{img:vot_res} v primerjavi z STARK\_RT \ref{img:vot2021_res}, lahko opazimo, da smo dobili polovico slabše rezultate, kar je bilo tudi pričakovano. Spodbudno je dejstvo, da četudi smo uporabili zelo okrnjeno različico modela, ki lahko popolnoma samostojno deluje na vgrjeni napravi, ne bi bili najslabši na testiranju.
+Če najprej primerjamo rezultate, ki smo jih dobili z uporabo sledilnika STARK Lightning (\ref{img:vot_ar}, \ref{img:vot_frames}, \ref{tab:vot_res}), lahko opazimo, da smo dobili približno 60\% slabše pričakovano povprečno prekiravnaje omejevalnega okvirja in za približno 45\% in 30\% slabšo natačnost ter robustnost. Slabši rezultati so bili pričakovani, saj smo uporabili precej poenostavljeno različico modela, ki ima nižje zahteve po procesorski moči in spominu. Spodbudno pa je dejstvo, da četudi smo uporabili zelo okrnjeno različico modela, ki lahko popolnoma samostojno deluje na vgrjeni napravi, ne bi bili najslabši na testiranju. Na testu VOT-ST2021 bi bila naša implementacija sledilnika boljša od desetih in bi tako pristala na 44. mestu.
+
+\begin{table}[htb]
+    \begin{tabular}{p{0.45\textwidth}|p{.16\textwidth}|p{.16\textwidth}|p{.16\textwidth}}    % po potrebi razširi prvo kolono tabele na račun drugih dveh!
+        {\bf Sledilnik }                               & {\bf EAO} & {\bf Accuracy} & {\bf Robustnest}   \\
+        \hline
+        \multicolumn{4}{c}{\emph{Sledilniki, ki smo jih sami testirali na podatkovni zbirki VOT-ST2021}} \\
+        \hline
+        \bf Stark Lightning \scriptsize (DepthAI)      & 0.213     & 0.429          & 0.590              \\
+        \bf Stark Lightning \scriptsize (ONNX Runtime) & 0.212     & 0.429          & 0.590              \\
+        \hline
+        \multicolumn{4}{c}{\emph{Različica sledilnika STARK, ki je bila testirana v \cite{vot2021}}}     \\
+        \hline
+        \bf STARK\_RT                                  & 0.534     & 0.781          & 0.830              \\
+        \hline
+        \multicolumn{4}{c}{\emph{3 najboljši sledilniki na testu VOT-ST2021 \cite{vot2021}}}             \\
+        \hline
+        \bf RPTMask                                    & 0.568     & 0.764          & 0.859              \\
+        \bf CFRPT                                      & 0.551     & 0.745          & 0.853              \\
+        \bf TransT\_M                                  & 0.550     & 0.742          & 0.869              \\
+        \hline
+        \multicolumn{4}{c}{\emph{3 najslabši sledilniki na testu VOT-ST2021 \cite{vot2021}}}             \\
+        \hline
+        \bf KCF                                        & 0.168     & 0.421          & 0.489              \\
+        \bf LGT                                        & 0.133     & 0.335          & 0.448              \\
+        \bf L1APG                                      & 0.083     & 0.359          & 0.222              \\
+        %  \dots & \dots & \dots \\
+    \end{tabular}
+    \caption{Tabela prikazuje rezultate testov, ki smo jih oprabili sami in rezultate testa VOT-ST2021 \cite{vot2021}.}
+    \label{tab:vot_res}
+\end{table}
+
+Zanimla nas je tudi primerjava med modelom, ki je optimiziran za delovanje na vgrajeni napravi in navadno implementacijo modela, ki se lahko izvaja znotraj okolja ONNX. Iz slik \ref{img:vot_ar} in \ref{img:vot_frames} lahko opazimo, da je delovanje sledilnika v obeh primerih identično. Iz tega lahko sklepamo, da se med optimiziranjem in prevajanjem model v OpenVINO format, ni izgubila nobena informacija, ki bi lahko vplivala na delovanje modela. Sklepamo pa lahko tudi to da zmanjšanje resolucije podatkovnega tipa iz 32 bitne plavajoče vejice v 16 bitno plavajočo vejico, ne vpliva na kvaliteto modela.
 
 \begin{figure}[htb]
     \begin{center}
-        \includegraphics[width=0.8\textwidth]{img/vot2021_res.png}
+        \includegraphics[width=0.8\textwidth]{img/vot_ar_plot.pdf}
     \end{center}
-    \caption{Slika prikazuje rezultate testa VOT2021, na eksperimentu \emph{baseline} in \emph{realtime} \cite{vot2021}.}
-    \label{img:vot2021_res}
+    \caption{Slika prikazuje retultat testa VOT-ST2021 uporabljenih sledilnikov. Graf prikazuje povprečno natančnost v odvisnosti od povprečne robustnosti. Rezultati sledilnika STARK\_RT so povzeti iz \cite{vot2021}.}
+    \label{img:vot_ar}
 \end{figure}
 
 \begin{figure}[htb]
     \begin{center}
-        \includegraphics[width=0.6\textwidth]{img/vot.png}
+        \includegraphics[width=1\textwidth]{img/vot_frames.pdf}
     \end{center}
-    \caption{Slika prikazuje rezultate testov, ki smo jih izvedli nad našo implmentacijo sledilnika.}
-    \label{img:vot_res}
-\end{figure}
-
-Zanimla nas je tudi primerjava med modelom, ki je optimiziran za delovanje na vgrajeni napravi in navadno implementacijo modela, ki se lahko izvaja znotraj okolja ONNX. Iz slik \ref{img:vot_bs_res} in \ref{img:vot_bs_frames} lahko opazimo, da je delovanje sledilnika v obeh primerih identično. Iz tega lahko sklepamo, da se med optimiziranjem in prevajanjem model v OpenVINO format, ni izgubila nobena informacija, ki bi lahko vplivala na delovanje modela. Sklepamo pa lahko tudi to da zmanjšanje resolucije podatkovnega tipa iz 32 bitne plavajoče vejice v 16 bitno plavajočo vejico, ne vpliva na kvaliteto modela.
-
-\begin{figure}[htb]
-    \begin{center}
-        \includegraphics[width=0.6\textwidth]{img/vot_bs_acc.png}
-    \end{center}
-    \caption{Slika prikazuje retultat testa VOT-ST2021 uporabljenih sledilnikov. Graf prikazuje povprečno natančnost v odvisnosti od povprečne robustnosti.}
-    \label{img:vot_bs_res}
-\end{figure}
-
-\begin{figure}[htb]
-    \begin{center}
-        \includegraphics[width=0.6\textwidth]{img/vot_bs_frames.png}
-    \end{center}
-    \caption{Slika prikazuje retultat testa VOT-ST2021 uporabljenih sledilnikov. Graf prikazuje pričakovano povprečno prekrivanje omejitvenih okvirjev skozi čas.}
-    \label{img:vot_bs_frames}
+    \caption{Slika prikazuje retultat testa VOT-ST2021 uporabljenih sledilnikov. Graf prikazuje pričakovano povprečno prekrivanje omejitvenih okvirjev skozi čas. Rezultati sledilnika STARK\_RT so povzeti iz \cite{vot2021}.}
+    \label{img:vot_frames}
 \end{figure}
 
 \chapter{Zaključek}
@@ -852,11 +866,11 @@ Največja slabost naše implementacije je hitrost delovanja. Sledilnik deluje z 
 %\cleardoublepage
 %\addcontentsline{toc}{chapter}{Literatura}
 
-\printbibliography[heading=bibintoc,type=article,title={Članki v revijah}]
-https://www.overleaf.com/project/609ce2055f917cb2f776732e
-\printbibliography[heading=bibintoc,type=inproceedings,title={Članki v zbornikih}]
+% \printbibliography[heading=bibintoc,type=article,title={Članki v revijah}]
+% https://www.overleaf.com/project/609ce2055f917cb2f776732e
+% \printbibliography[heading=bibintoc,type=inproceedings,title={Članki v zbornikih}]
 
-\printbibliography[heading=bibintoc,type=incollection,title={Poglavja v knjigah}]
+% \printbibliography[heading=bibintoc,type=incollection,title={Poglavja v knjigah}]
 
 \printbibliography[heading=bibintoc,title={Celotna literatura}]
 
