@@ -38,6 +38,36 @@
   year      = {2016}
 }
 
+@inproceedings{repvgg,
+  title     = {Repvgg: Making vgg-style convnets great again},
+  author    = {Ding, Xiaohan and Zhang, Xiangyu and Ma, Ningning and Han, Jungong and Ding, Guiguang and Sun, Jian},
+  booktitle = {Proceedings of the IEEE/CVF conference on computer vision and pattern recognition},
+  pages     = {13733--13742},
+  year      = {2021}
+}
+
+@article{got10k,
+  title     = {Got-10k: A large high-diversity benchmark for generic object tracking in the wild},
+  author    = {Huang, Lianghua and Zhao, Xin and Huang, Kaiqi},
+  journal   = {IEEE transactions on pattern analysis and machine intelligence},
+  volume    = {43},
+  number    = {5},
+  pages     = {1562--1577},
+  year      = {2019},
+  publisher = {IEEE}
+}
+
+@inproceedings{alpharef,
+  author    = {Yan, Bin and Zhang, Xinyu and Wang, Dong and Lu, Huchuan and Yang, Xiaoyun},
+  booktitle = {2021 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  title     = {Alpha-Refine: Boosting Tracking Performance by Precise Bounding Box Estimation},
+  year      = {2021},
+  volume    = {},
+  number    = {},
+  pages     = {5285-5294},
+  doi       = {10.1109/CVPR46437.2021.00525}
+}
+
 @article{yolov3,
   title   = {Yolov3: An incremental improvement},
   author  = {Redmon, Joseph and Farhadi, Ali},
@@ -76,6 +106,47 @@
   doi       = {10.1109/CVPR.2010.5539960}
 }
 
+@inproceedings{csk,
+  author    = {Henriques, Jo{\~a}o F.
+               and Caseiro, Rui
+               and Martins, Pedro
+               and Batista, Jorge},
+  editor    = {Fitzgibbon, Andrew
+               and Lazebnik, Svetlana
+               and Perona, Pietro
+               and Sato, Yoichi
+               and Schmid, Cordelia},
+  title     = {Exploiting the Circulant Structure of Tracking-by-Detection with Kernels},
+  booktitle = {Computer Vision -- ECCV 2012},
+  year      = {2012},
+  publisher = {Springer Berlin Heidelberg},
+  address   = {Berlin, Heidelberg},
+  pages     = {702--715},
+  abstract  = {Recent years have seen greater interest in the use of discriminative classifiers in tracking systems, owing to their success in object detection. They are trained online with samples collected during tracking. Unfortunately, the potentially large number of samples becomes a computational burden, which directly conflicts with real-time requirements. On the other hand, limiting the samples may sacrifice performance.},
+  isbn      = {978-3-642-33765-9}
+}
+
+
+@article{cfcf,
+  title     = {Good features to correlate for visual tracking},
+  author    = {Gundogdu, Erhan and Alatan, A Ayd{\i}n},
+  journal   = {IEEE Transactions on Image Processing},
+  volume    = {27},
+  number    = {5},
+  pages     = {2526--2540},
+  year      = {2018},
+  publisher = {IEEE}
+}
+
+@inproceedings{siamese,
+  title        = {Rpt: Learning point set representation for siamese visual tracking},
+  author       = {Ma, Ziang and Wang, Linyuan and Zhang, Haitao and Lu, Wei and Yin, Jun},
+  booktitle    = {Computer Vision--ECCV 2020 Workshops: Glasgow, UK, August 23--28, 2020, Proceedings, Part V 16},
+  pages        = {653--665},
+  year         = {2020},
+  organization = {Springer}
+}
+
 @article{vot,
   author  = {Matej Kristan and Jiri Matas and Ale\v{s} Leonardis and Tomas Vojir and Roman Pflugfelder and Gustavo Fernandez and Georg Nebehay and Fatih Porikli and Luka \v{C}ehovin},
   journal = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
@@ -95,11 +166,299 @@
   title  = {The Ninth Visual Object Tracking VOT2021 Challenge Results}
 }
 
-@misc{vot2022,
-  year   = {2022},
-  author = {Matej Kristan and Ales Leonardis and Jiri Matas and Michael Felsberg and Roman Pflugfelder and Joni-Kristian Kamarainen and Hyung Jin Chang and Martin Danelljan and Luka \v{C}ehovin Zajc and Alan Luke\v{z}i\v{c} and Ondrej Drbohlav and Johanna Bjorklund and Yushan Zhang and Zhongqun Zhang and Song Yan and Wenyan Yang and Dingding Cai and Christoph Mayer and Gustavo Fernandez},
-  title  = {The Tenth Visual Object Tracking VOT2022 Challenge Results}
+@inproceedings{vot2022,
+  author    = {Kristan, Matej
+               and Leonardis, Ale{\v{s}}
+               and Matas, Ji{\v{r}}{\'i}
+               and Felsberg, Michael
+               and Pflugfelder, Roman
+               and K{\"a}m{\"a}r{\"a}inen, Joni-Kristian
+               and Chang, Hyung Jin
+               and Danelljan, Martin
+               and Zajc, Luka {\v{C}}ehovin
+               and Luke{\v{z}}i{\v{c}}, Alan
+               and Drbohlav, Ondrej
+               and Bj{\"o}rklund, Johanna
+               and Zhang, Yushan
+               and Zhang, Zhongqun
+               and Yan, Song
+               and Yang, Wenyan
+               and Cai, Dingding
+               and Mayer, Christoph
+               and Fern{\'a}ndez, Gustavo
+               and Ben, Kang
+               and Bhat, Goutam
+               and Chang, Hong
+               and Chen, Guangqi
+               and Chen, Jiaye
+               and Chen, Shengyong
+               and Chen, Xilin
+               and Chen, Xin
+               and Chen, Xiuyi
+               and Chen, Yiwei
+               and Chen, Yu-Hsi
+               and Chen, Zhixing
+               and Cheng, Yangming
+               and Ciaramella, Angelo
+               and Cui, Yutao
+               and D{\v{z}}ubur, Benjamin
+               and Dasari, Mohana Murali
+               and Deng, Qili
+               and Dhar, Debajyoti
+               and Di, Shangzhe
+               and Nardo, Emanuel Di
+               and Du, Daniel K.
+               and Dunnhofer, Matteo
+               and Fan, Heng
+               and Feng, Zhenhua
+               and Fu, Zhihong
+               and Gao, Shang
+               and Gorthi, Rama Krishna
+               and Granger, Eric
+               and Gu, Q. H.
+               and Gupta, Himanshu
+               and He, Jianfeng
+               and He, Keji
+               and Huang, Yan
+               and Jangid, Deepak
+               and Ji, Rongrong
+               and Jiang, Cheng
+               and Jiang, Yingjie
+               and Lawin, Felix J{\"a}remo
+               and Kang, Ze
+               and Kiran, Madhu
+               and Kittler, Josef
+               and Lai, Simiao
+               and Lan, Xiangyuan
+               and Lee, Dongwook
+               and Lee, Hyunjeong
+               and Lee, Seohyung
+               and Li, Hui
+               and Li, Ming
+               and Li, Wangkai
+               and Li, Xi
+               and Li, Xianxian
+               and Li, Xiao
+               and Li, Zhe
+               and Lin, Liting
+               and Ling, Haibin
+               and Liu, Bo
+               and Liu, Chang
+               and Liu, Si
+               and Lu, Huchuan
+               and Cruz, Rafael M. O.
+               and Ma, Bingpeng
+               and Ma, Chao
+               and Ma, Jie
+               and Ma, Yinchao
+               and Martinel, Niki
+               and Memarmoghadam, Alireza
+               and Micheloni, Christian
+               and Moallem, Payman
+               and Nguyen-Meidine, Le Thanh
+               and Pan, Siyang
+               and Park, ChangBeom
+               and Paudel, Danda
+               and Paul, Matthieu
+               and Peng, Houwen
+               and Robinson, Andreas
+               and Rout, Litu
+               and Shan, Shiguang
+               and Simonato, Kristian
+               and Song, Tianhui
+               and Song, Xiaoning
+               and Sun, Chao
+               and Sun, Jingna
+               and Tang, Zhangyong
+               and Timofte, Radu
+               and Tsai, Chi-Yi
+               and Gool, Luc Van
+               and Verma, Om Prakash
+               and Wang, Dong
+               and Wang, Fei
+               and Wang, Liang
+               and Wang, Liangliang
+               and Wang, Lijun
+               and Wang, Limin
+               and Wang, Qiang
+               and Wu, Gangshan
+               and Wu, Jinlin
+               and Wu, Xiaojun
+               and Xie, Fei
+               and Xu, Tianyang
+               and Xu, Wei
+               and Xu, Yong
+               and Xu, Yuanyou
+               and Xue, Wanli
+               and Xun, Zizheng
+               and Yan, Bin
+               and Yang, Dawei
+               and Yang, Jinyu
+               and Yang, Wankou
+               and Yang, Xiaoyun
+               and Yang, Yi
+               and Yang, Yichun
+               and Yang, Zongxin
+               and Ye, Botao
+               and Yu, Fisher
+               and Yu, Hongyuan
+               and Yu, Jiaqian
+               and Yu, Qianjin
+               and Yu, Weichen
+               and Ze, Kang
+               and Zhai, Jiang
+               and Zhang, Chengwei
+               and Zhang, Chunhu
+               and Zhang, Kaihua
+               and Zhang, Tianzhu
+               and Zhang, Wenkang
+               and Zhang, Zhibin
+               and Zhang, Zhipeng
+               and Zhao, Jie
+               and Zhao, Shaochuan
+               and Zheng, Feng
+               and Zheng, Haixia
+               and Zheng, Min
+               and Zhong, Bineng
+               and Zhu, Jiawen
+               and Zhu, Xuefeng
+               and Zhuang, Yueting},
+  editor    = {Karlinsky, Leonid
+               and Michaeli, Tomer
+               and Nishino, Ko},
+  title     = {The Tenth Visual Object Tracking VOT2022 Challenge Results},
+  booktitle = {Computer Vision -- ECCV 2022 Workshops},
+  year      = {2023},
+  publisher = {Springer Nature Switzerland},
+  address   = {Cham},
+  pages     = {431--460},
+  abstract  = {The Visual Object Tracking challenge VOT2022 is the tenth annual tracker benchmarking activity organized by the VOT initiative. Results of 93 entries are presented; many are state-of-the-art trackers published at major computer vision conferences or in journals in recent years. The VOT2022 challenge was composed of seven sub-challenges focusing on different tracking domains: (i) VOT-STs2022 challenge focused on short-term tracking in RGB by segmentation, (ii) VOT-STb2022 challenge focused on short-term tracking in RGB by bounding boxes, (iii) VOT-RTs2022 challenge focused on ``real-time'' short-term tracking in RGB by segmentation, (iv) VOT-RTb2022 challenge focused on ``real-time'' short-term tracking in RGB by bounding boxes, (v) VOT-LT2022 focused on long-term tracking, namely coping with target disappearance and reappearance, (vi) VOT-RGBD2022 challenge focused on short-term tracking in RGB and depth imagery, and (vii) VOT-D2022 challenge focused on short-term tracking in depth-only imagery. New datasets were introduced in VOT-LT2022 and VOT-RGBD2022, VOT-ST2022 dataset was refreshed, and a training dataset was introduced for VOT-LT2022. The source code for most of the trackers, the datasets, the evaluation kit and the results are publicly available at the challenge website (http://votchallenge.net).},
+  isbn      = {978-3-031-25085-9}
 }
+
+@inproceedings{vot2020,
+  author    = {Kristan, Matej
+               and Leonardis, Ale{\v{s}}
+               and Matas, Ji{\v{r}}{\'i}
+               and Felsberg, Michael
+               and Pflugfelder, Roman
+               and K{\"a}m{\"a}r{\"a}inen, Joni-Kristian
+               and Danelljan, Martin
+               and Zajc, Luka {\v{C}}ehovin
+               and Luke{\v{z}}i{\v{c}}, Alan
+               and Drbohlav, Ondrej
+               and He, Linbo
+               and Zhang, Yushan
+               and Yan, Song
+               and Yang, Jinyu
+               and Fern{\'a}ndez, Gustavo
+               and Hauptmann, Alexander
+               and Memarmoghadam, Alireza
+               and Garc{\'i}a-Mart{\'i}n, {\'A}lvaro
+               and Robinson, Andreas
+               and Varfolomieiev, Anton
+               and Gebrehiwot, Awet Haileslassie
+               and Uzun, Bedirhan
+               and Yan, Bin
+               and Li, Bing
+               and Qian, Chen
+               and Tsai, Chi-Yi
+               and Micheloni, Christian
+               and Wang, Dong
+               and Wang, Fei
+               and Xie, Fei
+               and Lawin, Felix Jaremo
+               and Gustafsson, Fredrik
+               and Foresti, Gian Luca
+               and Bhat, Goutam
+               and Chen, Guangqi
+               and Ling, Haibin
+               and Zhang, Haitao
+               and Cevikalp, Hakan
+               and Zhao, Haojie
+               and Bai, Haoran
+               and Kuchibhotla, Hari Chandana
+               and Saribas, Hasan
+               and Fan, Heng
+               and Ghanei-Yakhdan, Hossein
+               and Li, Houqiang
+               and Peng, Houwen
+               and Lu, Huchuan
+               and Li, Hui
+               and Khaghani, Javad
+               and Bescos, Jesus
+               and Li, Jianhua
+               and Fu, Jianlong
+               and Yu, Jiaqian
+               and Xu, Jingtao
+               and Kittler, Josef
+               and Yin, Jun
+               and Lee, Junhyun
+               and Yu, Kaicheng
+               and Liu, Kaiwen
+               and Yang, Kang
+               and Dai, Kenan
+               and Cheng, Li
+               and Zhang, Li
+               and Wang, Lijun
+               and Wang, Linyuan
+               and Van Gool, Luc
+               and Bertinetto, Luca
+               and Dunnhofer, Matteo
+               and Cheng, Miao
+               and Dasari, Mohana Murali
+               and Wang, Ning
+               and Wang, Ning
+               and Zhang, Pengyu
+               and Torr, Philip H. S.
+               and Wang, Qiang
+               and Timofte, Radu
+               and Gorthi, Rama Krishna Sai
+               and Choi, Seokeon
+               and Marvasti-Zadeh, Seyed Mojtaba
+               and Zhao, Shaochuan
+               and Kasaei, Shohreh
+               and Qiu, Shoumeng
+               and Chen, Shuhao
+               and Sch{\"o}n, Thomas B.
+               and Xu, Tianyang
+               and Lu, Wei
+               and Hu, Weiming
+               and Zhou, Wengang
+               and Qiu, Xi
+               and Ke, Xiao
+               and Wu, Xiao-Jun
+               and Zhang, Xiaolin
+               and Yang, Xiaoyun
+               and Zhu, Xuefeng
+               and Jiang, Yingjie
+               and Wang, Yingming
+               and Chen, Yiwei
+               and Ye, Yu
+               and Li, Yuezhou
+               and Yao, Yuncon
+               and Lee, Yunsung
+               and Gu, Yuzhang
+               and Wang, Zezhou
+               and Tang, Zhangyong
+               and Feng, Zhen-Hua
+               and Mai, Zhijun
+               and Zhang, Zhipeng
+               and Wu, Zhirong
+               and Ma, Ziang},
+  editor    = {Bartoli, Adrien
+               and Fusiello, Andrea},
+  title     = {The Eighth Visual Object Tracking VOT2020 Challenge Results},
+  booktitle = {Computer Vision -- ECCV 2020 Workshops},
+  year      = {2020},
+  publisher = {Springer International Publishing},
+  address   = {Cham},
+  pages     = {547--601},
+  abstract  = {The Visual Object Tracking challenge VOT2020 is the eighth annual tracker benchmarking activity organized by the VOT initiative. Results of 58 trackers are presented; many are state-of-the-art trackers published at major computer vision conferences or in journals in the recent years. The VOT2020 challenge was composed of five sub-challenges focusing on different tracking domains: (i) VOT-ST2020 challenge focused on short-term tracking in RGB, (ii) VOT-RT2020 challenge focused on ``real-time'' short-term tracking in RGB, (iii) VOT-LT2020 focused on long-term tracking namely coping with target disappearance and reappearance, (iv) VOT-RGBT2020 challenge focused on short-term tracking in RGB and thermal imagery and (v) VOT-RGBD2020 challenge focused on long-term tracking in RGB and depth imagery. Only the VOT-ST2020 datasets were refreshed. A significant novelty is introduction of a new VOT short-term tracking evaluation methodology, and introduction of segmentation ground truth in the VOT-ST2020 challenge -- bounding boxes will no longer be used in the VOT-ST challenges. A new VOT Python toolkit that implements all these novelites was introduced. Performance of the tested trackers typically by far exceeds standard baselines. The source code for most of the trackers is publicly available from the VOT page. The dataset, the evaluation kit and the results are publicly available at the challenge website (http://votchallenge.net).},
+  isbn      = {978-3-030-68238-5}
+}
+
+
 
 @article{real_time_multiple_object_visual_tracking_for_embedded_gpu_systems,
   author  = {Fernández-Sanjurjo, Mauro and Mucientes, Manuel and Brea, Víctor Manuel},
@@ -112,12 +471,6 @@
   doi     = {10.1109/JIOT.2021.3056239}
 }
 
-@online{nn_vs_dnn,
-  title   = {What Is Deep Learning?},
-  author  = {Nisarg Patel},
-  url     = {https://medium.com/@nnpatel4583/what-is-deep-learning-4daa22ceea4e},
-  urldate = {2023}
-}
 
 @online{cnn,
   title   = {Binary Image classifier CNN using TensorFlow},
@@ -126,9 +479,20 @@
   urldate = {2023}
 }
 
-@online{luxonis,
-  title   = {Luxonis},
-  url     = {https://www.luxonis.com/},
-  urldate = {2023}
+@misc{luxonis,
+  author = {Luxonis},
+  title  = {Luxonis OAK-1},
+  year   = {2023},
+  note   = {[Splet; dostopano Marec 9, 2023]},
+  url    = {https://docs.luxonis.com/projects/hardware/en/latest/_images/oak-11.png}
 }
+
+@misc{nn_vs_dnn,
+  author = {Nisarg Patel},
+  title  = {What Is Deep Learning?},
+  url    = {https://miro.medium.com/v2/resize:fit:828/0*nQzGnGIsW6LJxJHB},
+  note   = {[Splet; dostopano Marec 9, 2023]},
+  year   = {2023}
+}
+
 
